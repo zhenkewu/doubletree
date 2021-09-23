@@ -1,0 +1,4 @@
+CC=clang
+CXX=clang++
+CXX1X=clang++
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
