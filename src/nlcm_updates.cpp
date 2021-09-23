@@ -87,6 +87,39 @@ arma::mat mtv(arma::mat mat, arma::vec v) {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 //' Calculate variational moments during the updates
 //'
@@ -347,18 +380,18 @@ arma::cube F_doubletree(arma::cube psi, // pL1 by J by K
       for (int k=0;k<K;k++){// for every class k.
         for (int j_obs=0;j_obs<J_i;j_obs++){
           int j = curr_ind_obs_i(j_obs)-1;
-          res(i,v1,k) += -log(1.0+exp(-psi(v1,j,k)))+(1.0*X(i,j)*E_beta(j,k,v1)-psi(v1,j,k))*0.5-g_psi(v1,j,k)*(E_beta_sq(j,k,v1)-pow(psi(v1,j,k),2.0));
+          res(i,v1,k) += logexpit_cpp(psi(v1,j,k))+(1.0*X(i,j)*E_beta(j,k,v1)-psi(v1,j,k))*0.5-g_psi(v1,j,k)*(E_beta_sq(j,k,v1)-pow(psi(v1,j,k),2.0));
         }
         if (k<1){//first segment
-          res(i,v1,k)   += -log(1.0+exp(-phi(v1,v2,k)))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
+          res(i,v1,k)   += logexpit_cpp(phi(v1,v2,k))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
         } else if (k< K-1){ // not the first, not the last.
           for (int m=0;m<k-1;m++){
-            res(i,v1,k)  += -log(1.0+exp(-phi(v1,v2,m)))+(-E_eta(v1,m,v2)-phi(v1,v2,m))*0.5-g_phi(v1,v2,m)*(E_eta_sq(v1,m,v2)-pow(phi(v1,v2,m),2.0));
+            res(i,v1,k)  += logexpit_cpp(phi(v1,v2,m))+(-E_eta(v1,m,v2)-phi(v1,v2,m))*0.5-g_phi(v1,v2,m)*(E_eta_sq(v1,m,v2)-pow(phi(v1,v2,m),2.0));
           }
-          res(i,v1,k)  += -log(1.0+exp(-phi(v1,v2,k)))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
+          res(i,v1,k)  += logexpit_cpp(phi(v1,v2,k))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
         } else{// k==K-1; the last segment:
           for (int s=0;s<K-1;s++){
-            res(i,v1,k)  += -log(1.0+exp(-phi(v1,v2,s)))+(-E_eta(v1,s,v2)-phi(v1,v2,s))*0.5-g_phi(v1,v2,s)*(E_eta_sq(v1,s,v2)-pow(phi(v1,v2,s),2.0));
+            res(i,v1,k)  += logexpit_cpp(phi(v1,v2,s))+(-E_eta(v1,s,v2)-phi(v1,v2,s))*0.5-g_phi(v1,v2,s)*(E_eta_sq(v1,s,v2)-pow(phi(v1,v2,s),2.0));
           }
         }
       }
@@ -367,18 +400,18 @@ arma::cube F_doubletree(arma::cube psi, // pL1 by J by K
         for (int k=0;k<K;k++){// for every class k.
           for (int j_obs=0;j_obs<J_i;j_obs++){
             int j = curr_ind_obs_i(j_obs)-1;
-            res(i,v1,k) += -log(1.0+exp(-psi(v1,j,k)))+(1.0*X(i,j)*E_beta(j,k,v1)-psi(v1,j,k))*0.5-g_psi(v1,j,k)*(E_beta_sq(j,k,v1)-pow(psi(v1,j,k),2.0));
+            res(i,v1,k) += logexpit_cpp(psi(v1,j,k))+(1.0*X(i,j)*E_beta(j,k,v1)-psi(v1,j,k))*0.5-g_psi(v1,j,k)*(E_beta_sq(j,k,v1)-pow(psi(v1,j,k),2.0));
           }
           if (k<1){//first segment
-            res(i,v1,k)   += -log(1.0+exp(-phi(v1,v2,k)))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
+            res(i,v1,k)   += logexpit_cpp(phi(v1,v2,k))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
           } else if (k< K-1){ // not the first, not the last.
             for (int m=0;m<k-1;m++){
-              res(i,v1,k)  += -log(1.0+exp(-phi(v1,v2,m)))+(-E_eta(v1,m,v2)-phi(v1,v2,m))*0.5-g_phi(v1,v2,m)*(E_eta_sq(v1,m,v2)-pow(phi(v1,v2,m),2.0));
+              res(i,v1,k)  += logexpit_cpp(phi(v1,v2,m))+(-E_eta(v1,m,v2)-phi(v1,v2,m))*0.5-g_phi(v1,v2,m)*(E_eta_sq(v1,m,v2)-pow(phi(v1,v2,m),2.0));
             }
-            res(i,v1,k)  += -log(1.0+exp(-phi(v1,v2,k)))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
+            res(i,v1,k)  += logexpit_cpp(phi(v1,v2,k))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
           } else{// k==K-1; the last segment:
             for (int s=0;s<K-1;s++){
-              res(i,v1,k)  += -log(1.0+exp(-phi(v1,v2,s)))+(-E_eta(v1,s,v2)-phi(v1,v2,s))*0.5-g_phi(v1,v2,s)*(E_eta_sq(v1,s,v2)-pow(phi(v1,v2,s),2.0));
+              res(i,v1,k)  += logexpit_cpp(phi(v1,v2,s))+(-E_eta(v1,s,v2)-phi(v1,v2,s))*0.5-g_phi(v1,v2,s)*(E_eta_sq(v1,s,v2)-pow(phi(v1,v2,s),2.0));
             }
           }
         }
@@ -556,103 +589,11 @@ arma::mat update_rmat_with_F_doubletree(arma::cube curr_F,//n,pL1,K
   return res;
 }
 
-// //' Update the variational probabilities of each observation in one of `K` classes
-// //'
-// //' This function updates the N by K matrix \code{rmat} in the package
-// //'
-// //' @param psi,g_psi,phi,g_phi local variational parameters
-// //' @param X transformed data: `2Y-1`; with potential missing responses
-// //' @param ind_obs_i List of length N; each element is a vector of integers; variable lengths.
-// //' @param emat matrix (N by K); row sums are one - the class probabilities for each observation.
-// //' @param F array (N by pL1 by K) - produced by `update_emat_doubletree` as a byproduct
-// //' @param E_beta,E_beta_sq,E_eta,E_eta_sq moment updates produced by \code{\link{get_moments_cpp_doubletree}}
-// //' @param v1_lookup_NA_replaced,v2_lookup `v2_lookup` is a vector of length equal to the total number of rows in \code{X};
-// //' each element is an integer, indicating which leaf does the observation belong to in tree2;
-// //' similarly for tree1. `v1_lookup` contains `pL1+1` to represent the observations
-// //' with missing labels in tree1.
-// //'
-// //' @return  N by K variational multinomial probabilities for
-// //' the posterior distribution of N people's membership in the K classes in tree1;
-// //' row sums are 1s.
-// //'
-// //' @useDynLib doubletree
-// //' @importFrom Rcpp sourceCpp
-// //' @export
-// // [[Rcpp::export]]
-// List update_rmat_doubletree(arma::cube psi, // pL1 by J by K
-//                             arma::cube g_psi,
-//                             arma::cube phi, // pL1 by pL2 by K-1
-//                             arma::cube g_phi,
-//                             arma::mat X,// N by J; with missing data; <------ do we need to add information about missing index?
-//                             List ind_obs_i,// length N list; each element is a vector of integers; variable lengths.
-//                             arma::mat emat,//N by pL1; in R, should check subjects not in unknown_ids have all 1 emat values.
-//                             arma::cube F,//N by pL1 by K;
-//                             arma::cube E_beta,//J,K,pL1
-//                             arma::cube E_beta_sq,//J,K,pL1
-//                             arma::cube E_eta, //pL1,K-1,pL2
-//                             arma::cube E_eta_sq,//pL1,K-1,pL2
-//                             arma::vec v1_lookup_NA_replaced,//N by 1; known!
-//                             arma::vec v2_lookup){// N by 1; known!
-//   int n = X.n_rows, J = X.n_cols, K = psi.n_slices, pL1 = psi.n_rows;
-//   int v = 0;
-//   // X = X+0.0;
-//   arma::mat res(n,K);res.zeros();
-//   arma::vec tmp(n);tmp.zeros();
-//   int i = 0;
-//   // for (int i_unknown=0;i_unknown<n_unknown;i_unknown++){
-//   // i = unknown_ids(i_unknown)-1;
-//   for (int i=0;i<n;i++){
-//     arma::vec curr_ind_obs_i = ind_obs_i[i]; // get the indices of items for which subject i provided a response.
-//     int J_i = curr_ind_obs_i.size(); // number of observed responses for subject i.
-//     int v1 = v1_lookup_NA_replaced(i)-1;//get leaf id in tree1.
-//     int v2 = v2_lookup(i)-1;// get leaf id in tree2.
-//
-//     if (v1<pL1){// if not missing
-//       for (int k=0;k<K;k++){// for every class k.
-//         for (int j_obs=0;j_obs<J_i;j_obs++){
-//           int j = curr_ind_obs_i(j_obs)-1;
-//           res(i,k) += -log(1.0+exp(-psi(v1,j,k)))+(1.0*X(i,j)*E_beta(j,k,v1)-psi(v1,j,k))*0.5-g_psi(v1,j,k)*(E_beta_sq(j,k,v1)-pow(psi(v1,j,k),2.0));
-//         }
-//         if (k<1){//first segment
-//           res(i,k)   += -log(1.0+exp(-phi(v1,v2,k)))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
-//         } else if (k< K-1){ // not the first, not the last.
-//           for (int m=0;m<k-1;m++){
-//             res(i,k)  += -log(1.0+exp(-phi(v1,v2,m)))+(-E_eta(v1,m,v2)-phi(v1,v2,m))*0.5-g_phi(v1,v2,m)*(E_eta_sq(v1,m,v2)-pow(phi(v1,v2,m),2.0));
-//           }
-//           res(i,k)  += -log(1.0+exp(-phi(v1,v2,k)))+(E_eta(v1,k,v2)-phi(v1,v2,k))*0.5-g_phi(v1,v2,k)*(E_eta_sq(v1,k,v2)-pow(phi(v1,v2,k),2.0));
-//         } else{// k==K-1; the last segment:
-//           for (int s=0;s<K-1;s++){
-//             res(i,k)  += -log(1.0+exp(-phi(v1,v2,s)))+(-E_eta(v1,s,v2)-phi(v1,v2,s))*0.5-g_phi(v1,v2,s)*(E_eta_sq(v1,s,v2)-pow(phi(v1,v2,s),2.0));
-//           }
-//         }
-//         F(i,v1,k) = res(i,k);// ith person with known tree1 label; v1 is redundant; but this updates F.
-//       }
-//       tmp(i) = logsumexp_row(res.row(i));
-//     } else{// if missing; v1=pL1+1 (pL1 in C indexing system) in v1_lookup_NA_replaced.
-//       for (int k=0;k<K;k++){// for every class k.
-//         for (int v=0;v<pL1;v++){
-//           res(i,k) += emat(i,v)*F(i,v,k);
-//         }
-//       }
-//       tmp(i) = logsumexp_row(res.row(i));
-//     }
-//   }
-//   for (int i=0;i<n;i++){
-//     for (int k=0;k<K;k++){
-//       res(i,k) = exp(res(i,k)-tmp(i));
-//     }
-//   }
-//   // return results:
-//   return List::create(Named("res")=res,
-//                       Named("F")=F // definitely contains useless terms...for observed tree1 labels.
-//   );
-// }
-
 //' Update gamma's variational distribution. Update the variational mean and variance for logit of
 //' class-specific response probabilities (for the \code{s*_u=1} component in tree1.)
 //'
 //' @param u node id; internal or leaf node in tree1
-//' @param g_psi,g_phi g of local variational parameters
+//' @param g_psi g of local variational parameters
 //' @param tau_1_t_u variational Gaussian variances for gamma
 //' @param E_beta,E_zeta_u moment updates produced by \code{\link{get_moments_cpp}};
 //' \code{E_zeta_u} is directly calculated: \code{prob1[u]*sigma_gamma[u,,]}
@@ -682,7 +623,6 @@ arma::mat update_rmat_with_F_doubletree(arma::cube curr_F,//n,pL1,K
 // [[Rcpp::export]]
 List update_gamma_subid_doubletree(int u,
                                    arma::cube g_psi,// pL1 by J by K
-                                   arma::cube g_phi,// pL1 by pL2 by K-1
                                    double tau_1_t_u,
                                    arma::cube E_beta,// J by K by pL1
                                    arma::mat E_zeta_u,//J by K
@@ -690,60 +630,36 @@ List update_gamma_subid_doubletree(int u,
                                    arma::mat rmat,//N by K
                                    arma::mat emat,//N by pL1
                                    arma::vec h_pau,//p1
-                                   List subject_ids_nonmissing,//unknown length - subjects nested under node u; AND with complete info for each of the j dims.
                                    arma::vec leaf_desc
 ){
-  int n = X_zeropad.n_rows, J = g_psi.n_cols, K = g_psi.n_slices;
+  int n = X_zeropad.n_rows, J = X_zeropad.n_cols, K = g_psi.n_slices;
   int pL1 = g_psi.n_rows;
   int uu = (int) u-1;
   arma::mat resA(J,K);resA.zeros(); // inv A, or variance
-  // arma::mat resA2(J,K);resA2.zeros(); // inv A, or variance
   arma::mat resB(J,K);resB.zeros();
-  // arma::mat resB2(J,K);resB2.zeros();
   arma::mat logresBsq_o_A(J,K);logresBsq_o_A.zeros();
+
+  X_zeropad = 1.0*X_zeropad;
 
   int n_leaf_desc = leaf_desc.size();
   for (int j=0;j<J;j++){
-    arma::vec curr_ind_obs_j = subject_ids_nonmissing[j];
-    int I_i = curr_ind_obs_j.size();
     for (int k=0;k<K;k++){
-      resA(j,k) = 1/(tau_1_t_u*h_pau(uu));
-      // resA2(j,k) = 1/(tau_1_t_u*h_pau(uu));
-      // for (int i=0;i<n;i++){// will use emat to choose which of pL1 is used.
-      //   //also here does not involve X, so no ind_obs_j needed in this part.
-      //   for (int v1=0;v1<n_leaf_desc;v1++){
-      //     int curr_v  = leaf_desc(v1)-1;
-      //     resA(j,k) += 2.0*g_psi(curr_v,j,k)*emat(i,curr_v)*rmat(i,k);
-      //     resB(j,k) += emat(i,curr_v)*(rmat(i,k)*(X_zeropad(i,j)*0.5- X_zeropad(i,j)*X_zeropad(i,j)*2.0*g_psi(curr_v,j,k)*(E_beta(j,k,curr_v)-E_zeta_u(j,k))));
-      //   }
-      // }
-
+      resA(j,k) = 1.0/(tau_1_t_u*h_pau(uu));
       for (int v1=0;v1<n_leaf_desc;v1++){
         int curr_v  = leaf_desc(v1)-1;
         resA(j,k)  += 2.0*g_psi(curr_v,j,k)*sum(emat.col(curr_v)%rmat.col(k));
-        resB(j,k) += sum(emat.col(curr_v)%(rmat.col(k)%(X_zeropad.col(j)*0.5- X_zeropad.col(j)%X_zeropad.col(j)*2.0*g_psi(curr_v,j,k)*(E_beta(j,k,curr_v)-E_zeta_u(j,k)))));
+        resB(j,k)  += sum(emat.col(curr_v)%(rmat.col(k)%(X_zeropad.col(j)*0.5-
+          X_zeropad.col(j)%X_zeropad.col(j)*2.0*g_psi(curr_v,j,k)*(E_beta(j,k,curr_v)-E_zeta_u(j,k)))));
       }
-
-      // The following calculations have to account for the fact that some subjects
-      // may not be counted because of missing data.
-      // for (int i_obs = 0; i_obs<I_i;i_obs++){
-      //   int iii = curr_ind_obs_j(i_obs)-1;
-      //   for (int vv1=0;vv1<n_leaf_desc;vv1++){
-      //     int curr_v1 = leaf_desc(vv1)-1;
-      //     resB(j,k) += emat(iii,curr_v1)*(rmat(iii,k)*(X_zeropad(iii,j)*0.5- 2.0*g_psi(curr_v1,j,k)*(E_beta(j,k,curr_v1)-E_zeta_u(j,k))));
-      //   }
-      // }
       logresBsq_o_A(j,k) = 2.0*log(abs(resB(j,k)))-log(resA(j,k));
-      resA(j,k) =1.0/resA(j,k);
-      // resA2(j,k) =1.0/resA2(j,k);
+      resA(j,k) = 1.0/resA(j,k);
     }
   }
   return List::create(Named("resA")=resA,
-                      // Named("resA2")=resA2,
                       Named("resB")=resB,
-                      // Named("resB2")=resB2,
                       Named("logresBsq_o_A")=logresBsq_o_A);
 }
+
 
 
 //get_moments_cpp_eco
@@ -781,49 +697,55 @@ List update_gamma_subid_doubletree(int u,
 //' @importFrom Rcpp sourceCpp
 //' @export
 // [[Rcpp::export]]
-List update_alpha_subid_doubletree(int u,
-                                   int v1,
-                                   arma::cube g_psi,// pL1 by J by K
-                                   arma::cube g_phi,// pL1 by pL2 by K-1
-                                   double tau_2_t_u,
-                                   arma::cube E_eta,//pL1 by K-1 by pL2
-                                   arma::mat E_xi_u,// pL1 by K-1
-                                   arma::mat X,// N by J
-                                   arma::mat rmat,//N by K
-                                   arma::mat emat,//N by pL1
-                                   arma::vec h_pau,//p2
-                                   arma::vec levels,//p2
-                                   arma::vec subject_ids,
-                                   arma::vec v2_lookup//N by 1
+List update_alpha_subid_doubletree(
+    int u,
+    int v1,
+    arma::cube g_phi,// pL1 by pL2 by K-1
+    double tau_2_t_u,
+    arma::cube E_eta,//pL1 by K-1 by pL2
+    arma::mat E_xi_u,// pL1 by K-1
+    arma::mat X,// N by J
+    arma::mat rmat,//N by K
+    arma::mat emat,//N by pL1
+    arma::vec h_pau,//p2
+    arma::vec levels,//p2
+    arma::vec subject_ids,
+    arma::vec v2_lookup//N by 1
 ){
-  int n = subject_ids.size(), J = g_psi.n_cols, K = g_psi.n_slices;
-  int p = h_pau.size(), pL1 = g_psi.n_rows;
+  int n = subject_ids.size(), J = X.n_cols, K = rmat.n_cols;
+  int p = h_pau.size(), pL1 = E_eta.n_rows;
   int ii = 0;
   int vv = 0;
   int uu = (int) u-1;
 
   arma::vec resC(K-1);resC.zeros(); // inv C, or variance
   arma::vec resD(K-1);resD.zeros();
+  arma::vec pre_resC(2);pre_resC.zeros();
   arma::vec logresDsq_o_C(K-1);logresDsq_o_C.zeros();
 
-  v1 = v1-1;
+  int vv1 = v1-1;
   for (int k=0;k<K-1;k++){
-    resC(k) = 1/(tau_2_t_u*h_pau(uu));
+    resC(k) = -1.0*log(tau_2_t_u)-1.0*log(h_pau(uu));
+    // resC(k) = 1/(tau_2_t_u*h_pau(uu));
     for (int i=0;i<n;i++){
       ii = (int) subject_ids(i)-1;
       vv = (int) v2_lookup(ii)-1;
       for (int m=k;m<K;m++){
-        resC(k) += 2.0*rmat(ii,m)*g_phi(v1,vv,k)*emat(ii,v1);// need to make sure emat have correct one-hot representations for observed CODs.
+        pre_resC(0) = resC(k);
+        pre_resC(1) = log(2.0)+log(rmat(ii,m))+log(g_phi(vv1,vv,k))+log(emat(ii,vv1));
+        resC(k) = logsumexp(pre_resC);// need to make sure emat have correct one-hot representations for observed CODs.
+        // resC(k) += 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*emat(ii,vv1);// need to make sure emat have correct one-hot representations for observed CODs.
         if (m<k+1){
-          resD(k) += emat(ii,v1)*(rmat(ii,m)*0.5 - 2.0*rmat(ii,m)*g_phi(v1,vv,k)*(E_eta(v1,k,vv)-E_xi_u(v1,k)));
+          resD(k) += emat(ii,vv1)*(rmat(ii,m)*0.5 - 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
         }else{
-          resD(k) += emat(ii,v1)*(-rmat(ii,m)*0.5 - 2.0*rmat(ii,m)*g_phi(v1,vv,k)*(E_eta(v1,k,vv)-E_xi_u(v1,k)));
+          resD(k) += emat(ii,vv1)*(-rmat(ii,m)*0.5 - 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
         }
       }
     }
-    logresDsq_o_C(k) = 2.0*log(abs(resD(k)))-log(resC(k));
+    logresDsq_o_C(k) = 2.0*log(abs(resD(k)))-resC(k);
+    resC(k) = expm1(-resC(k))+1.0;
   }
-  resC = 1.0/resC;
+  // resC = 1.0/resC;
   return List::create(Named("resC")=resC,// this is actually 1/C in the paper, the variance
                       Named("resD")=resD,
                       Named("logresDsq_o_C")=logresDsq_o_C);

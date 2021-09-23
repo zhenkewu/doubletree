@@ -81,6 +81,8 @@ fit_nlcm_doubletree <- function(dsgn,
 
   # initialize ELBO:
   ELBO_track <- numeric(max_iter)
+  line_track <- vector("list",max_iter+1)
+  line_track[[1]] <- rep(0,17)
 
   # run algorithm: ---------------------
   i <- 0
@@ -110,12 +112,15 @@ fit_nlcm_doubletree <- function(dsgn,
                                     quiet      = quiet,
                                     args = c(dsgn,vi_params,hyperparams,hyper_fixed))
     ELBO_track[i] <- hyperparams$ELBO
+    line_track[[i+1]] <- hyperparams$line_vec
 
     # print progress:
     if (i %% print_freq ==0){
       #if(ELBO_track[i] - ELBO_track[i-1]<0){
       if (!quiet){
-        cat("|--- Iteration", i, "; epsilon = ", ELBO_track[i] - ELBO_track[i-1], "; ELBO = ", ELBO_track[i],"\n")
+        cat("|--- Iteration", i, "; >>> epsilon = ", ELBO_track[i] - ELBO_track[i-1], "<<<<; ELBO = ", ELBO_track[i],"\n")
+        cat("|", i, "; line_vec_delta = \n")
+        print(line_track[[i+1]]-line_track[[i]])
         cat("> empirical class probabilities: ", round(colMeans(vi_params$rmat),4),"\n")
         cat("> node_select: ",which(vi_params$prob1>0.5),"\n")
       }
@@ -147,7 +152,8 @@ fit_nlcm_doubletree <- function(dsgn,
         #   # if (criterion4)
         #   break
         # }
-        i2 <- min(ceiling(i / update_hyper_freq) * update_hyper_freq - 1,
+        i2 <- min(max(ceiling(i / update_hyper_freq) * update_hyper_freq - 1,
+                          2 * update_hyper_freq-1),
                   max_iter)
         ELBO_track[(i + 1):i2] <- ELBO_track[i]   # can send this iteration much later; so appears updating more frequent than specified.
         #ELBO_track[(i + 1):i2] <- hyperparams$ELBO  # can send this iteration much later; so appears updating more frequent than specified.
@@ -158,6 +164,6 @@ fit_nlcm_doubletree <- function(dsgn,
 
   # return results:
   c(make_list(vi_params, hyperparams, hyper_fixed),
-    list(ELBO_track=ELBO_track[1:i]))
+    list(ELBO_track=ELBO_track[1:i]),list(line_track = do.call("rbind",line_track[2:(i+1)])))
 
 }

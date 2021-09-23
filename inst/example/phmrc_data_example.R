@@ -82,53 +82,44 @@ dsgn2     <- design_doubletree(Y,leaf_ids2,mytrees,weighted_edges)
 #
 # FITTING MODELS:
 #
-mod <- nlcm_doubletree(Y,leaf_ids2,mytrees,weighted_edge = c(FALSE,FALSE),
-                       ci_level = 0.95,
-                       get_lcm_by_group = FALSE,
-                       update_hyper_freq = 10,
-                       print_freq = 1,
-                       quiet      = FALSE,
-                       plot_fig   = FALSE, # <-- used?
-                       tol        = 1E-8,
-                       tol_hyper = 1E-4,
-                       max_iter = 100,
-                       nrestarts = 1,
-                       keep_restarts = TRUE,
-                       parallel = TRUE,
-                       log_restarts = FALSE,
-                       log_dir = ".",
-                       vi_params_init = list(),
-                       hyperparams_init = list(),
-                       random_init = FALSE,
-                       random_init_vals = list(mu_gamma_sd_frac = 0.2,
-                                               mu_alpha_sd_frac = 0.2,
-                                               tau1_lims = c(0.5,1.5),
-                                               tau2_lims = c(0.5,1.5),
-                                               u_sd_frac = 0.2, # this is for logit of prob1.
-                                               psi_sd_frac = 0.2,
-                                               phi_sd_frac = 0.2),
-                       hyper_fixed = list(K=2, LD=!TRUE,# number of latent classes.
-                                          a1 = rep(20,max(igraph::V(cause_tree)$levels)),
-                                          b1 = rep(1,max(igraph::V(cause_tree)$levels)),
-                                          a2=matrix(1,nrow=length(ancestors1),ncol=max(igraph::V(domain_tree)$levels)),
-                                          # <-- NB: where do we specify levels? in the tree.
-                                          b2=matrix(10,nrow=length(ancestors1),ncol=max(igraph::V(domain_tree)$levels)),
-                                          # both (a1,b1),(a2,b2) can encourage shrinkage towards the parent.
-                                          dmat = matrix(1,nrow=length(dsgn$ancestors[[1]]),ncol=length(dsgn$ancestors[[2]])), # (cause,domain).
-                                          #s1_u_zeroset = c(2:p1), # force NO diffusion in tree1.
-                                          s1_u_zeroset = NULL, # not force diffusion in tree1.
-                                          #s1_u_oneset = 1,    # not force diffusion in tree1.
-                                          s1_u_oneset = 1:p1,  # force diffusion in tree1.
-                                          #s2_cu_zeroset = rep(list(2:p2),pL1), # force NO diffusion in non-roots tree2.
-                                          s2_cu_zeroset = NULL,            # not force diffusion in tree2.
-                                          s2_cu_oneset = rep(list(1),pL1), # not force diffusion in tree2.
-                                          #s2_cu_oneset = rep(list(1:p2),pL1), # force diffusion tree2.
-                                          tau_update_levels = list(1,1)
-                       )
+mod <- nlcm_doubletree(
+  Y[,1:15],leaf_ids2,mytrees,weighted_edges = c(FALSE,FALSE),
+  ci_level = 0.95,
+  get_lcm_by_group = FALSE,
+  update_hyper_freq = 10,
+  print_freq = 1,
+  quiet      = FALSE,
+  plot_fig   = FALSE, # <-- used?
+  tol        = 1E-8,
+  tol_hyper = 1E-4,
+  max_iter = 100,
+  nrestarts = 1,
+  keep_restarts = TRUE,
+  parallel = TRUE,
+  log_restarts = FALSE,
+  log_dir = ".",
+  vi_params_init = list(),
+  hyperparams_init = list(),
+  random_init = FALSE,
+  hyper_fixed = list(K=2, LD=TRUE,# number of latent classes.
+                     a1 = rep(20,max(igraph::V(cause_tree)$levels)),
+                     b1 = rep(1,max(igraph::V(cause_tree)$levels)),
+                     a2=matrix(1,nrow=length(dsgn$ancestors[[1]]),ncol=max(igraph::V(domain_tree)$levels)),
+                     # <-- NB: where do we specify levels? in the tree.
+                     b2=matrix(10,nrow=length(dsgn$ancestors[[1]]),ncol=max(igraph::V(domain_tree)$levels)),
+                     # both (a1,b1),(a2,b2) can encourage shrinkage towards the parent.
+                     dmat = matrix(1,nrow=length(dsgn$ancestors[[1]]),ncol=length(dsgn$ancestors[[2]])), # (cause,domain).
+                     #s1_u_zeroset = c(2:p1), # force NO diffusion in tree1.
+                     s1_u_zeroset = NULL, # not force diffusion in tree1.
+                     s1_u_oneset = NULL,#1,    # not force diffusion in tree1.
+                     #s1_u_oneset = 1:p1,  # force diffusion in tree1.
+                     #s2_cu_zeroset = rep(list(2:p2),pL1), # force NO diffusion in non-roots tree2.
+                     s2_cu_zeroset = NULL,            # not force diffusion in tree2.
+                     s2_cu_oneset = NULL,#rep(list(1),pL1), # not force diffusion in tree2.
+                     #s2_cu_oneset = rep(list(1:p2),pL1), # force diffusion tree2.
+                     tau_update_levels = list(1,1)
+  )
 )
-
-
-
 
 # get the design output; this is needed because the function reorders the data rows:
 dsgn0 <- design_doubletree(Y,leaf_ids2,
@@ -174,6 +165,13 @@ map_nlcm <- apply(xx,1,which.max)
 
 table(map_nlcm,truth)
 sum(map_nlcm!=truth)/length(map_nlcm)
+
+#
+# top k accuracy:
+#
+k = 3
+pred_top <- get_topk_COD(xx,k)
+acc_topk(pred_top,truth)
 
 #
 # RESPONSE PROBABILITIES:

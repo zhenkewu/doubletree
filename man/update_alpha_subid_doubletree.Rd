@@ -7,7 +7,6 @@
 update_alpha_subid_doubletree(
   u,
   v1,
-  g_psi,
   g_phi,
   tau_2_t_u,
   E_eta,
@@ -25,8 +24,6 @@ update_alpha_subid_doubletree(
 \item{u}{node id; internal or leaf node in tree1}
 
 \item{v1}{leaf node id in tree1.}
-
-\item{g_psi, g_phi}{g of local variational parameters}
 
 \item{tau_2_t_u}{variational Gaussian variances for gamma}
 
@@ -52,6 +49,8 @@ between a node and its parent; for tree2}
 
 \item{v2_lookup}{a vector of length equal to the total number of rows in X;
 each element is an integer, indicating which leaf does the observation belong to in tree2.}
+
+\item{g_psi, g_phi}{g of local variational parameters}
 }
 \value{
 a list

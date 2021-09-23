@@ -208,7 +208,7 @@ update_rmat_with_F_doubletree <- function(curr_F, emat) {
 #' class-specific response probabilities (for the \code{s*_u=1} component in tree1.)
 #'
 #' @param u node id; internal or leaf node in tree1
-#' @param g_psi,g_phi g of local variational parameters
+#' @param g_psi g of local variational parameters
 #' @param tau_1_t_u variational Gaussian variances for gamma
 #' @param E_beta,E_zeta_u moment updates produced by \code{\link{get_moments_cpp}};
 #' \code{E_zeta_u} is directly calculated: \code{prob1[u]*sigma_gamma[u,,]}
@@ -235,8 +235,8 @@ update_rmat_with_F_doubletree <- function(curr_F, emat) {
 #' @useDynLib doubletree
 #' @importFrom Rcpp sourceCpp
 #' @export
-update_gamma_subid_doubletree <- function(u, g_psi, g_phi, tau_1_t_u, E_beta, E_zeta_u, X_zeropad, rmat, emat, h_pau, subject_ids_nonmissing, leaf_desc) {
-    .Call('_doubletree_update_gamma_subid_doubletree', PACKAGE = 'doubletree', u, g_psi, g_phi, tau_1_t_u, E_beta, E_zeta_u, X_zeropad, rmat, emat, h_pau, subject_ids_nonmissing, leaf_desc)
+update_gamma_subid_doubletree <- function(u, g_psi, tau_1_t_u, E_beta, E_zeta_u, X_zeropad, rmat, emat, h_pau, leaf_desc) {
+    .Call('_doubletree_update_gamma_subid_doubletree', PACKAGE = 'doubletree', u, g_psi, tau_1_t_u, E_beta, E_zeta_u, X_zeropad, rmat, emat, h_pau, leaf_desc)
 }
 
 #' Update alpha's variational distribution.
@@ -271,8 +271,8 @@ update_gamma_subid_doubletree <- function(u, g_psi, g_phi, tau_1_t_u, E_beta, E_
 #' @useDynLib doubletree
 #' @importFrom Rcpp sourceCpp
 #' @export
-update_alpha_subid_doubletree <- function(u, v1, g_psi, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup) {
-    .Call('_doubletree_update_alpha_subid_doubletree', PACKAGE = 'doubletree', u, v1, g_psi, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup)
+update_alpha_subid_doubletree <- function(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup) {
+    .Call('_doubletree_update_alpha_subid_doubletree', PACKAGE = 'doubletree', u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup)
 }
 
 #' calculate line 1, 2, and 15 of ELBO*

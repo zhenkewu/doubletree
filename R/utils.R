@@ -459,6 +459,18 @@ acc_topk <- function(pred_topk,truth){
 }
 
 
+
+#' heatmap
+#'
+#' @param mat a matrix
+#'
+#' @return image
+#'
+#' @export
+myhm <- function(mat){
+  heatmap(mat,Rowv=NA,Colv=NA)
+  }
+
 ## 2. CSMF accuracy
 ## 3. RMSE
 ## 4. aRI for assessing cluster estimation accuracy

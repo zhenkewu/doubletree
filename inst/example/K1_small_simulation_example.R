@@ -44,7 +44,7 @@ mytrees <- list(tree1 = cause_tree, tree2 = domain_tree)
 ###############################################################################
 ## Begin simulating data using the two trees above.
 ###############################################################################
-n     <- 500
+n     <- 2000
 K     <- 2
 J     <- 18 # J =168 in the data
 
@@ -163,7 +163,7 @@ mod <- nlcm_doubletree(
                           u_sd_frac = 0.2, # for logit of probs
                           psi_sd_frac = 0.2,
                           phi_sd_frac = 0.2),
-  hyper_fixed = list(K=2,LD=!TRUE, # number of latent classes.
+  hyper_fixed = list(K=2,LD=TRUE, # number of latent classes.
                      a1 = rep(20,max(igraph::V(cause_tree)$levels)),
                      b1 = rep(1,max(igraph::V(cause_tree)$levels)),
                      a2=matrix(1,nrow=length(ancestors1),ncol=max(igraph::V(domain_tree)$levels)),

@@ -166,14 +166,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // update_gamma_subid_doubletree
-List update_gamma_subid_doubletree(int u, arma::cube g_psi, arma::cube g_phi, double tau_1_t_u, arma::cube E_beta, arma::mat E_zeta_u, arma::mat X_zeropad, arma::mat rmat, arma::mat emat, arma::vec h_pau, List subject_ids_nonmissing, arma::vec leaf_desc);
-RcppExport SEXP _doubletree_update_gamma_subid_doubletree(SEXP uSEXP, SEXP g_psiSEXP, SEXP g_phiSEXP, SEXP tau_1_t_uSEXP, SEXP E_betaSEXP, SEXP E_zeta_uSEXP, SEXP X_zeropadSEXP, SEXP rmatSEXP, SEXP ematSEXP, SEXP h_pauSEXP, SEXP subject_ids_nonmissingSEXP, SEXP leaf_descSEXP) {
+List update_gamma_subid_doubletree(int u, arma::cube g_psi, double tau_1_t_u, arma::cube E_beta, arma::mat E_zeta_u, arma::mat X_zeropad, arma::mat rmat, arma::mat emat, arma::vec h_pau, arma::vec leaf_desc);
+RcppExport SEXP _doubletree_update_gamma_subid_doubletree(SEXP uSEXP, SEXP g_psiSEXP, SEXP tau_1_t_uSEXP, SEXP E_betaSEXP, SEXP E_zeta_uSEXP, SEXP X_zeropadSEXP, SEXP rmatSEXP, SEXP ematSEXP, SEXP h_pauSEXP, SEXP leaf_descSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type u(uSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type g_psi(g_psiSEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type g_phi(g_phiSEXP);
     Rcpp::traits::input_parameter< double >::type tau_1_t_u(tau_1_t_uSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type E_beta(E_betaSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type E_zeta_u(E_zeta_uSEXP);
@@ -181,21 +180,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type rmat(rmatSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type emat(ematSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type h_pau(h_pauSEXP);
-    Rcpp::traits::input_parameter< List >::type subject_ids_nonmissing(subject_ids_nonmissingSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type leaf_desc(leaf_descSEXP);
-    rcpp_result_gen = Rcpp::wrap(update_gamma_subid_doubletree(u, g_psi, g_phi, tau_1_t_u, E_beta, E_zeta_u, X_zeropad, rmat, emat, h_pau, subject_ids_nonmissing, leaf_desc));
+    rcpp_result_gen = Rcpp::wrap(update_gamma_subid_doubletree(u, g_psi, tau_1_t_u, E_beta, E_zeta_u, X_zeropad, rmat, emat, h_pau, leaf_desc));
     return rcpp_result_gen;
 END_RCPP
 }
 // update_alpha_subid_doubletree
-List update_alpha_subid_doubletree(int u, int v1, arma::cube g_psi, arma::cube g_phi, double tau_2_t_u, arma::cube E_eta, arma::mat E_xi_u, arma::mat X, arma::mat rmat, arma::mat emat, arma::vec h_pau, arma::vec levels, arma::vec subject_ids, arma::vec v2_lookup);
-RcppExport SEXP _doubletree_update_alpha_subid_doubletree(SEXP uSEXP, SEXP v1SEXP, SEXP g_psiSEXP, SEXP g_phiSEXP, SEXP tau_2_t_uSEXP, SEXP E_etaSEXP, SEXP E_xi_uSEXP, SEXP XSEXP, SEXP rmatSEXP, SEXP ematSEXP, SEXP h_pauSEXP, SEXP levelsSEXP, SEXP subject_idsSEXP, SEXP v2_lookupSEXP) {
+List update_alpha_subid_doubletree(int u, int v1, arma::cube g_phi, double tau_2_t_u, arma::cube E_eta, arma::mat E_xi_u, arma::mat X, arma::mat rmat, arma::mat emat, arma::vec h_pau, arma::vec levels, arma::vec subject_ids, arma::vec v2_lookup);
+RcppExport SEXP _doubletree_update_alpha_subid_doubletree(SEXP uSEXP, SEXP v1SEXP, SEXP g_phiSEXP, SEXP tau_2_t_uSEXP, SEXP E_etaSEXP, SEXP E_xi_uSEXP, SEXP XSEXP, SEXP rmatSEXP, SEXP ematSEXP, SEXP h_pauSEXP, SEXP levelsSEXP, SEXP subject_idsSEXP, SEXP v2_lookupSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type u(uSEXP);
     Rcpp::traits::input_parameter< int >::type v1(v1SEXP);
-    Rcpp::traits::input_parameter< arma::cube >::type g_psi(g_psiSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type g_phi(g_phiSEXP);
     Rcpp::traits::input_parameter< double >::type tau_2_t_u(tau_2_t_uSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type E_eta(E_etaSEXP);
@@ -207,7 +204,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type levels(levelsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type subject_ids(subject_idsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type v2_lookup(v2_lookupSEXP);
-    rcpp_result_gen = Rcpp::wrap(update_alpha_subid_doubletree(u, v1, g_psi, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup));
+    rcpp_result_gen = Rcpp::wrap(update_alpha_subid_doubletree(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -240,8 +237,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_doubletree_F_doubletree", (DL_FUNC) &_doubletree_F_doubletree, 13},
     {"_doubletree_update_emat_with_F_doubletree", (DL_FUNC) &_doubletree_update_emat_with_F_doubletree, 4},
     {"_doubletree_update_rmat_with_F_doubletree", (DL_FUNC) &_doubletree_update_rmat_with_F_doubletree, 2},
-    {"_doubletree_update_gamma_subid_doubletree", (DL_FUNC) &_doubletree_update_gamma_subid_doubletree, 12},
-    {"_doubletree_update_alpha_subid_doubletree", (DL_FUNC) &_doubletree_update_alpha_subid_doubletree, 14},
+    {"_doubletree_update_gamma_subid_doubletree", (DL_FUNC) &_doubletree_update_gamma_subid_doubletree, 10},
+    {"_doubletree_update_alpha_subid_doubletree", (DL_FUNC) &_doubletree_update_alpha_subid_doubletree, 13},
     {"_doubletree_get_line1_2_15_doubletree", (DL_FUNC) &_doubletree_get_line1_2_15_doubletree, 6},
     {NULL, NULL, 0}
 };

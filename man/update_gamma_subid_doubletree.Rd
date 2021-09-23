@@ -8,7 +8,6 @@ class-specific response probabilities (for the \code{s*_u=1} component in tree1.
 update_gamma_subid_doubletree(
   u,
   g_psi,
-  g_phi,
   tau_1_t_u,
   E_beta,
   E_zeta_u,
@@ -16,14 +15,13 @@ update_gamma_subid_doubletree(
   rmat,
   emat,
   h_pau,
-  subject_ids_nonmissing,
   leaf_desc
 )
 }
 \arguments{
 \item{u}{node id; internal or leaf node in tree1}
 
-\item{g_psi, g_phi}{g of local variational parameters}
+\item{g_psi}{g of local variational parameters}
 
 \item{tau_1_t_u}{variational Gaussian variances for gamma}
 
@@ -43,10 +41,10 @@ of that cause.}
 \item{h_pau}{a numeric vector of length p indicating the branch length
 between a node and its parent}
 
+\item{leaf_desc}{a vector of leaf descendants nested under node \code{u}}
+
 \item{subject_ids_nonmissing}{the ids of subjects in the leaf descendants of node u;
 a list of length J, each is a list of subjects nested under u AND have complete info.}
-
-\item{leaf_desc}{a vector of leaf descendants nested under node \code{u}}
 }
 \value{
 a list

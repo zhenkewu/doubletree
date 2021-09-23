@@ -47,15 +47,15 @@ mytrees <- list(tree1 = cause_tree, tree2 = domain_tree)
 ###############################################################################
 n     <- 1000
 K     <- 2
-J     <- 18 # J =168 in the data
+J     <- 20 # J =168 in the data
 
 fracs_leaves1 <- c(1,rep(1,pL1-1))
-fracs_leavs1  <- fracs_leaves1/sum(fracs_leaves1)
+fracs_leaves1  <- fracs_leaves1/sum(fracs_leaves1)
 pi_mat        <- matrix(fracs_leaves1,nrow=pL1,ncol=pL2)
 
 # create tree1 leaf level class-specific response probabilities:
-itemprob0 <- rbind(rep(rep(c(0.95, 0.95), each = 1),9),
-                   rep(rep(c(0.1, 0.1), each = 1),9))
+itemprob0 <- rbind(rep(rep(c(0.95, 0.95), each = 1),10),
+                   rep(rep(c(0.1, 0.1), each = 1),10))
 gamma_mat_list <- list(logit(itemprob0))
 
 for (u in 1:(p1-1)){ # random increments on random columns
@@ -155,7 +155,8 @@ example_data_doubletree$N_sim_mat
 curr_leaf_ids <- vector("list",2)
 curr_leaf_ids[[1]] <- leaves1[example_data_doubletree$truth$true_leaf_ids[,1]]
 #curr_leaf_ids[[1]][1:10] <- NA
-curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==1] <- NA # <--- make this work.
+curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==1] <- NA
+curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==2] <- NA
 curr_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]]
 
 mod <- nlcm_doubletree(
@@ -164,7 +165,7 @@ mod <- nlcm_doubletree(
   ci_level = 0.95,
   get_lcm_by_group = FALSE,
   update_hyper_freq = 20,
-  print_freq = 20,
+  print_freq = 1,
   quiet      = FALSE,
   plot_fig   = FALSE, # <-- used?
   tol        = 1E-8,
@@ -178,14 +179,7 @@ mod <- nlcm_doubletree(
   vi_params_init = list(),
   hyperparams_init = list(),
   random_init = !FALSE,
-  random_init_vals = list(mu_gamma_sd_frac = 0.2,
-                          mu_alpha_sd_frac = 0.2,
-                          tau1_lims = c(0.5,1.5),
-                          tau2_lims = c(0.5,1.5),
-                          u_sd_frac = 0.2, # for logit of probs
-                          psi_sd_frac = 0.2,
-                          phi_sd_frac = 0.2),
-  hyper_fixed = list(K=2, LD=TRUE,# number of latent classes.
+  hyper_fixed = list(K=20, LD=TRUE,# number of latent classes.
                      a1 = rep(20,max(igraph::V(cause_tree)$levels)),
                      b1 = rep(1,max(igraph::V(cause_tree)$levels)),
                      a2=matrix(1,nrow=length(ancestors1),ncol=max(igraph::V(domain_tree)$levels)),
@@ -194,14 +188,15 @@ mod <- nlcm_doubletree(
                      # both (a1,b1),(a2,b2) can encourage shrinkage towards the parent.
                      dmat = matrix(1,nrow=length(ancestors1),ncol=length(ancestors2)), # (cause,domain).
                      s1_u_zeroset = NULL,
-                     #s1_u_oneset = 1, # not force diffusion.
-                     s1_u_oneset = 1:p1, # force diffusion.
+                     s1_u_oneset = NULL, # not force diffusion.
+                     #s1_u_oneset = 1:p1, # force diffusion.
                      #s2_cu_zeroset = rep(list(2:p2),pL1), # force NO diffusion in non-roots tree2.
                      s2_cu_zeroset = NULL,
-                     s2_cu_oneset = rep(list(1),pL1), # no force diffusion tree2.
+                     s2_cu_oneset = NULL,#rep(list(1),pL1), # no force diffusion tree2.
                      tau_update_levels = list(1,1)
   )
 )
+
 
 # get the design output; this is needed because the function reorders the data rows:
 dsgn0 <- design_doubletree(example_data_doubletree$Y,curr_leaf_ids,
@@ -248,6 +243,26 @@ map_nlcm <- apply(xx,1,which.max)
 table(map_nlcm,truth)
 sum(map_nlcm!=truth)/length(map_nlcm)
 
+
+#
+# CSMF accuracy (the function is obtained from openVA):
+# check how to get top1, top3 cause classification accuracy.
+#
+acc_CSMF <- rep(NA,pL2)
+for (g in 1:pL2){
+  acc_CSMF[g] <- openVA::getCSMF_accuracy(
+    sweep(mod$mod$vi_params$dirich_mat,MARGIN = 2,colSums(mod$mod$vi_params$dirich_mat),"/")[,g],
+    pi_mat[,g])
+}
+print(acc_CSMF)
+
+#
+# top k accuracy:
+#
+k = 1
+pred_top <- get_topk_COD(xx,1)
+acc_topk(pred_top,truth)
+
 #
 # RESPONSE PROBABILITIES:
 #
@@ -262,6 +277,19 @@ for (v1 in 1:pL1){
   image(itemprob_list_est[[v1]],main=v1)
 }
 
+#
+# LATENT CLASS PROBABILITIES:
+#
+heatmap(mod$mod$vi_params$rmat,Rowv=NA,Colv=NA)
+
+
+#
+# ELBO trajectory
+#
+plot(mod$mod$ELBO_track,type="o",main="ELBO trajectory")
+plot(mod$mod$ELBO_track[-(1:100)],type="o",main="ELBO trajectory")
+
+
 # need to write a function to determine the misclassification rates.
 
 # how do we avoid tree1 leaf specific class relabeling. perhaps need to consider the same set of alphas
@@ -270,7 +298,9 @@ for (v1 in 1:pL1){
 ## need to confirm the classification performance; here we have very collapsed
 ## tree for the causes, so the classification performance likely would not be great.
 
-
-
-
+# window <- -c(1:400)
+# plot(mod$mod$line_track[window,1],type="o")
+# for (l in 2:17){
+#   plot(mod$mod$line_track[window,l],type="o",pch=l)
+# }
 
