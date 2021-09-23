@@ -50,6 +50,7 @@ update_hyperparams_doubletree(
   b2,
   dmat,
   K,
+  LD,
   tau_update_levels,
   update_hyper,
   quiet
@@ -154,6 +155,8 @@ function \code{\link[=initialize_nlcm_doubletree]{initialize_nlcm_doubletree()}}
 \item{dmat}{fixed hyperparameters}
 
 \item{K}{fixed hyperparameters}
+
+\item{LD}{fixed hyperparameters}
 
 \item{tau_update_levels}{a numeric vector, specifies which levels of hyperparameters to update}
 

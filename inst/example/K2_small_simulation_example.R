@@ -156,8 +156,13 @@ curr_leaf_ids <- vector("list",2)
 curr_leaf_ids[[1]] <- leaves1[example_data_doubletree$truth$true_leaf_ids[,1]]
 #curr_leaf_ids[[1]][1:10] <- NA
 curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==1] <- NA
-curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==2] <- NA
+# curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==2] <- NA
 curr_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]]
+
+
+
+
+
 
 
 
@@ -181,7 +186,7 @@ mod <- nlcm_doubletree(
   vi_params_init = list(),
   hyperparams_init = list(),
   random_init = !FALSE,
-  hyper_fixed = list(K=3, LD=TRUE,# number of latent classes.
+  hyper_fixed = list(K=2, LD=TRUE,# number of latent classes.
                      a1 = rep(20,max(igraph::V(cause_tree)$levels)),
                      b1 = rep(1,max(igraph::V(cause_tree)$levels)),
                      a2=matrix(1,nrow=length(ancestors1),ncol=max(igraph::V(domain_tree)$levels)),
@@ -198,7 +203,6 @@ mod <- nlcm_doubletree(
                      tau_update_levels = list(1,1)
   )
 )
-
 
 # get the design output; this is needed because the function reorders the data rows:
 dsgn0 <- design_doubletree(example_data_doubletree$Y,curr_leaf_ids,

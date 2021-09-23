@@ -125,9 +125,8 @@ fit_nlcm_doubletree <- function(dsgn,
         cat("> node_select: ",which(vi_params$prob1>0.5),"\n")
       }
       if (plot_fig){
-        barplot(vi_params$prob)
+        barplot(vi_params$prob1)
         abline(h=0.5,col="purple",lty=2)
-        image(expit(vi_params$mu_gamma[[1]])) # root node.
       }
     }
 

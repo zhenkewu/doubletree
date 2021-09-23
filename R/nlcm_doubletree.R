@@ -108,7 +108,7 @@ nlcm_doubletree <- function(Y,leaf_ids,mytrees,# may have unordered nodes.
                             print_freq = 10,
                             quiet      = FALSE,
                             plot_fig   = FALSE,
-                            hyper_fixed = list(K=2,LD=FALSE), # <-- default to fitting local independence model.
+                            hyper_fixed = list(K=2,LD=TRUE),
                             tol        = 1E-8,
                             tol_hyper = 1E-4,
                             max_iter = 5000,

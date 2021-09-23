@@ -83,7 +83,7 @@ dsgn2     <- design_doubletree(Y,leaf_ids2,mytrees,weighted_edges)
 # FITTING MODELS:
 #
 mod <- nlcm_doubletree(
-  Y[,1:15],leaf_ids2,mytrees,weighted_edges = c(FALSE,FALSE),
+  Y[,1:20],leaf_ids2,mytrees,weighted_edges = c(FALSE,FALSE),
   ci_level = 0.95,
   get_lcm_by_group = FALSE,
   update_hyper_freq = 10,
@@ -92,7 +92,7 @@ mod <- nlcm_doubletree(
   plot_fig   = FALSE, # <-- used?
   tol        = 1E-8,
   tol_hyper = 1E-4,
-  max_iter = 1000,
+  max_iter = 100,
   nrestarts = 1,
   keep_restarts = TRUE,
   parallel = TRUE,
@@ -101,7 +101,7 @@ mod <- nlcm_doubletree(
   vi_params_init = list(),
   hyperparams_init = list(),
   random_init = FALSE,
-  hyper_fixed = list(K=10, LD=TRUE,# number of latent classes.
+  hyper_fixed = list(K=2, LD=TRUE,# number of latent classes.
                      a1 = rep(20,max(igraph::V(cause_tree)$levels)),
                      b1 = rep(1,max(igraph::V(cause_tree)$levels)),
                      a2=matrix(1,nrow=length(dsgn$ancestors[[1]]),ncol=max(igraph::V(domain_tree)$levels)),
@@ -111,11 +111,11 @@ mod <- nlcm_doubletree(
                      dmat = matrix(1,nrow=length(dsgn$ancestors[[1]]),ncol=length(dsgn$ancestors[[2]])), # (cause,domain).
                      #s1_u_zeroset = c(2:p1), # force NO diffusion in tree1.
                      s1_u_zeroset = NULL, # not force diffusion in tree1.
-                     s1_u_oneset = NULL,#1,    # not force diffusion in tree1.
-                     #s1_u_oneset = 1:p1,  # force diffusion in tree1.
+                     #s1_u_oneset = NULL,#1,    # not force diffusion in tree1.
+                     s1_u_oneset = 1:p1,  # force diffusion in tree1.
                      #s2_cu_zeroset = rep(list(2:p2),pL1), # force NO diffusion in non-roots tree2.
                      s2_cu_zeroset = NULL,            # not force diffusion in tree2.
-                     s2_cu_oneset = NULL,#rep(list(1),pL1), # not force diffusion in tree2.
+                     s2_cu_oneset = rep(list(1),pL1), # not force diffusion in tree2.
                      #s2_cu_oneset = rep(list(1:p2),pL1), # force diffusion tree2.
                      tau_update_levels = list(1,1)
   )

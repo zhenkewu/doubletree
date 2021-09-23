@@ -59,7 +59,8 @@ update_vi_params_doubletree <- function(
   if (!is.null(s2_cu_zeroset)){ # not updating nodes that are set to zeros.
     for (v in 1:pL1){
       if (!is.null(s2_cu_zeroset[[v]])){
-        if (length(setdiff(s2_cu_zeroset[[v]],1:p2))!=0){stop(paste0("[doubletree] 's2_cu_zeroset has elements not between 1 and p2; check c= '",v,"."))}
+        if (length(setdiff(s2_cu_zeroset[[v]],1:p2))!=0){
+          stop(paste0("[doubletree] 's2_cu_zeroset has elements not between 1 and p2; check c= '",v,"."))}
         seq_update2[[v]] <- (1:p2)[-s2_cu_zeroset[[v]]]
         prob2[[v]][s2_cu_zeroset[[v]]] <- 0
         for (u in s2_cu_zeroset[[v]]){ # this may not matter; but just to be logically clear.
@@ -73,7 +74,8 @@ update_vi_params_doubletree <- function(
     for (v in 1:pL1){
       if (!is.null(s2_cu_zeroset[[v]])){
         prob2[[v]][s2_cu_oneset[[v]]] <- 1
-        if (length(setdiff(s2_cu_oneset[[v]],1:p2))!=0){stop(paste0("[doubletree] 's2_cu_oneset has elements not between 1 and p2; check c= '",v,"."))}
+        if (length(setdiff(s2_cu_oneset[[v]],1:p2))!=0){
+          stop(paste0("[doubletree] 's2_cu_oneset has elements not between 1 and p2; check c= '",v,"."))}
       }
     }
   }
@@ -93,40 +95,40 @@ update_vi_params_doubletree <- function(
     E_eta          <- moments_cpp$E_eta
   }
 
-  # # update mu_gamma,sigma_gamma,prob1:----------------------------------------
-  # for (u1 in seq_update1){
-  #   tau_1_t[u1] <- tau_1[levels[[1]][u1]]
-  #   if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
-  #     prob1[u1] <- 1
-  #   }
-  #   gamma_update <- update_gamma_subid_doubletree(
-  #     u1,g_psi,
-  #     tau_1_t[u1],
-  #     E_beta,as.matrix(prob1[u1]*mu_gamma[[u1]],nrow=J,ncol=K),
-  #     as.matrix(X_zeropad),
-  #     rmat,emat,
-  #     h_pau[[1]],
-  #     leaf_ids_nodes[[1]][[u1]])
-  #
-  #   mu_gamma[[u1]]    <-   gamma_update$resB*gamma_update$resA #  J by K
-  #   sigma_gamma[[u1]] <-   gamma_update$resA
-  #
-  #   # update probability:
-  #   w1_u <- digamma(a1_t[levels[[1]][u1]])-digamma(b1_t[levels[[1]][u1]])+
-  #     0.5*exp(logSumExp(c(gamma_update$logresBsq_o_A)))-
-  #     0.5*J*K*log(tau_1_t[u1]*h_pau[[1]][u1])-0.5*sum(-log(sigma_gamma[[u1]]))
-  #
-  #   prob1[u1] <- expit(w1_u)
-  #   if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
-  #     prob1[u1] <- 1
-  #   }
-  #   # recalculate moments; the ones that matters are the descedant nodes of u1:
-  #   moments_cpp <- get_moments_cpp_eco_gamma_doubletree(
-  #     prob1,array(unlist(mu_gamma),c(J,K,p1)),array(unlist(sigma_gamma),c(J,K,p1)),
-  #     E_beta,E_beta_sq,ancestors[[1]],leaf_ids_nodes[[1]][[u1]])
-  #   E_beta <- moments_cpp$E_beta
-  #   E_beta_sq <- moments_cpp$E_beta_sq
-  # }
+  # update mu_gamma,sigma_gamma,prob1:----------------------------------------
+  for (u1 in seq_update1){
+    tau_1_t[u1] <- tau_1[levels[[1]][u1]]
+    if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
+      prob1[u1] <- 1
+    }
+    gamma_update <- update_gamma_subid_doubletree(
+      u1,g_psi,
+      tau_1_t[u1],
+      E_beta,as.matrix(prob1[u1]*mu_gamma[[u1]],nrow=J,ncol=K),
+      as.matrix(X_zeropad),
+      rmat,emat,
+      h_pau[[1]],
+      leaf_ids_nodes[[1]][[u1]])
+
+    mu_gamma[[u1]]    <-   gamma_update$resB*gamma_update$resA #  J by K
+    sigma_gamma[[u1]] <-   gamma_update$resA
+
+    # update probability:
+    w1_u <- digamma(a1_t[levels[[1]][u1]])-digamma(b1_t[levels[[1]][u1]])+
+      0.5*exp(logSumExp(c(gamma_update$logresBsq_o_A)))-
+      0.5*J*K*log(tau_1_t[u1]*h_pau[[1]][u1])-0.5*sum(-log(sigma_gamma[[u1]]))
+
+    prob1[u1] <- expit(w1_u)
+    if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
+      prob1[u1] <- 1
+    }
+    # recalculate moments; the ones that matters are the descedant nodes of u1:
+    moments_cpp <- get_moments_cpp_eco_gamma_doubletree(
+      prob1,array(unlist(mu_gamma),c(J,K,p1)),array(unlist(sigma_gamma),c(J,K,p1)),
+      E_beta,E_beta_sq,ancestors[[1]],leaf_ids_nodes[[1]][[u1]])
+    E_beta <- moments_cpp$E_beta
+    E_beta_sq <- moments_cpp$E_beta_sq
+  }
 
 
   # update for the mu_alpha, sigma_alpha, prob2--------------------------------
@@ -145,18 +147,8 @@ update_vi_params_doubletree <- function(
           as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
           subject_id_list[[2]][[u2]],v_units[[2]])
 
-        # alpha_update2 <- update_alpha_subid_doubletree2(
-        #   u2,v1,g_phi,tau_2_t[u2],E_eta,
-        #   as.matrix(sweep(mu_alpha[[u2]],MARGIN=1,do.call("rbind",prob2)[,u2],"*")),
-        #   as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
-        #   subject_id_list[[2]][[u2]],v_units[[2]])
-
         mu_alpha[[u2]][v1,]    <-  alpha_update$resD*alpha_update$resC
         sigma_alpha[[u2]][v1,] <-  alpha_update$resC
-
-
-        # print(sum(alpha_update2$resD*alpha_update2$resC-alpha_update$resD*alpha_update$resC))
-        # print(sum(alpha_update2$resC-sigma_alpha[[u2]][v1,]))
 
         # need to do this for every node in u2
         w2_cu <- digamma(a2_t[v1,levels[[2]][u2]])-digamma(b2_t[v1,levels[[2]][u2]])+
@@ -252,7 +244,7 @@ update_hyperparams_doubletree <- function(
   E_beta_sq,E_eta_sq,E_beta,E_eta,# vi parameters; !!! although this can be calculated from mu's sigma's
   psi,g_psi,phi,g_phi,
   tau_1,tau_2, # hyper-params
-  a1,b1,a2,b2,dmat,K,tau_update_levels,#fixed hyper-parameters not to be update.
+  a1,b1,a2,b2,dmat,K,LD,tau_update_levels,#fixed hyper-parameters not to be update.
   update_hyper,quiet # called in 'fit_nlcm_tree' to update tau_1 and tau_2 or not.
 ){
   # calculate some useful quantities:
@@ -287,21 +279,21 @@ update_hyperparams_doubletree <- function(
         (1-prob2_mat[,u])*tau_2_t[u]*h_pau2[u]) #pL1 # the sum is pL1*(K-1) elements.
   }
 
-  # if (update_hyper){ # computed at each iteration - TRUE to update the hyperparameters.
-  #   for (l in 1:Fg1){
-  #     if (l %in% tau_update_levels[[1]]){
-  #       tau_1[l]  <- sum(expected_ss_gamma[levels[[1]]==l])/(J*K*sum(levels[[1]]==l))
-  #       # cat("> Updated tau_1 and tau_2; level ",l,":",  tau_1[l],", ",tau_2[l],". \n")
-  #     }
-  #   }
-  #
-  #   for (l in 1:Fg2){
-  #     if (l %in% tau_update_levels[[2]]){
-  #       tau_2[l]  <- sum(expected_ss_alpha[levels[[2]]==l])/(pL1*(K-1)*sum(levels[[2]]==l))
-  #       # cat("> Updated tau_1 and tau_2; level ",l,":",  tau_1[l],", ",tau_2[l],". \n")
-  #     }
-  #   }
-  # }
+  if (update_hyper){ # computed at each iteration - TRUE to update the hyperparameters.
+    for (l in 1:Fg1){
+      if (l %in% tau_update_levels[[1]]){
+        tau_1[l]  <- sum(expected_ss_gamma[levels[[1]]==l])/(J*K*sum(levels[[1]]==l))
+        # cat("> Updated tau_1 and tau_2; level ",l,":",  tau_1[l],", ",tau_2[l],". \n")
+      }
+    }
+
+    for (l in 1:Fg2){
+      if (l %in% tau_update_levels[[2]]){
+        tau_2[l]  <- sum(expected_ss_alpha[levels[[2]]==l])/(pL1*(K-1)*sum(levels[[2]]==l))
+        # cat("> Updated tau_1 and tau_2; level ",l,":",  tau_1[l],", ",tau_2[l],". \n")
+      }
+    }
+  }
 
   # update ELBO:
   expected_l_rho2    <- digamma(a2_t) - digamma(a2_t+b2_t)

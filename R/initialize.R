@@ -188,6 +188,7 @@ initialize_nlcm_doubletree <- function(Y,A,
     # get the prevalence estimate:
     tmp <- pmin(pmax(mod$P,0.01),0.99) # truncate to reasonable values.
     tau <- (tmp/sum(tmp)) # normalize; the above may not sum to 1 after truncation.
+    smart_guess_rmat <- (tmp/sum(tmp)) # normalize; the above may not sum to 1 after truncation.
 
     # transform to stick-breaking representation:
     for (v in 1:pL1){ # for every cause
@@ -468,11 +469,15 @@ initialize_nlcm_doubletree <- function(Y,A,
         sample(1:pL1,size=length(is.na(v_units[[1]])),replace=TRUE,prob=obs_cts/sum(obs_cts))
     }
     vi_params$emat <- unMAP(tmp_indicators) # this is for all observation; ignore the ones with observed CODs.
+    if (scenario!="a"){
+      vi_params$emat[is.na(v_units[[1]]),] <- obs_cts/sum(obs_cts) # non-zero entries.
+    }
   } # NB: need to selectively ignore the ones with observed COD.
 
   ## multinomial variational parameters: N by K - class for people in each source and target domain.
   if (is.null(vi_params[["rmat"]])){ # always missing in latent class analysis!
-    vi_params$rmat <- cbind(rep(1,n),matrix(0,nrow=n,ncol=K-1))
+    vi_params$rmat <- matrix(smart_guess_rmat,nrow=n,ncol=K,byrow=TRUE) # non-zero entries.
+    # vi_params$rmat <- cbind(rep(0.9,n),matrix(0.1/(K-1),nrow=n,ncol=K-1))
     #vi_params$rmat <- unMAP(sample(1:K,size=n,replace=TRUE))
   }
 
