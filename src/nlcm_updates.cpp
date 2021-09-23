@@ -713,7 +713,7 @@ List update_alpha_subid_doubletree(
     arma::vec v2_lookup//N by 1
 ){
   int n = subject_ids.size(), J = X.n_cols, K = rmat.n_cols;
-  int p = h_pau.size(), pL1 = E_eta.n_rows;
+  int p = h_pau.size(), pL1 = emat.n_cols;
   int ii = 0;
   int vv = 0;
   int uu = (int) u-1;
@@ -731,7 +731,7 @@ List update_alpha_subid_doubletree(
       ii = (int) subject_ids(i)-1;
       vv = (int) v2_lookup(ii)-1;
       for (int m=k;m<K;m++){
-        pre_resC(0) = resC(k);
+        pre_resC(0) = 1.0*resC(k);
         pre_resC(1) = log(2.0)+log(rmat(ii,m))+log(g_phi(vv1,vv,k))+log(emat(ii,vv1));
         resC(k) = logsumexp(pre_resC);// need to make sure emat have correct one-hot representations for observed CODs.
         // resC(k) += 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*emat(ii,vv1);// need to make sure emat have correct one-hot representations for observed CODs.
@@ -750,6 +750,88 @@ List update_alpha_subid_doubletree(
                       Named("resD")=resD,
                       Named("logresDsq_o_C")=logresDsq_o_C);
 }
+
+//' Update alpha's variational distribution.
+//'
+//' @param u node id; internal or leaf node in tree1
+//' @param v1 leaf node id in tree1.
+//' @param g_psi,g_phi g of local variational parameters
+//' @param tau_2_t_u variational Gaussian variances for gamma
+//' @param E_eta,E_xi_u moment updates produced by \code{\link{get_moments_cpp}};
+//' \code{E_xi_u} is directly calculated
+//' @param X transformed data: `2Y-1`; contains potential missing data.
+//' @param rmat a matrix of variational probabilities of all observations
+//' belong to K classes; N by K; each row sums to 1
+//' @param emat a matrix of variational probability for all observations
+//' belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
+//' for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+//' of that cause.
+//' @param h_pau a numeric vector of length p indicating the branch length
+//' between a node and its parent; for tree2
+//' @param levels a vector of possibly repeating integers from 1 to Fg2
+//' @param subject_ids integer ids for subjects nested under node `u`
+//' @param v2_lookup a vector of length equal to the total number of rows in X;
+//' each element is an integer, indicating which leaf does the observation belong to in tree2.
+//'
+//' @return  a list
+//' \describe{
+//'   \item{resC}{actually 1/C in the paper, this is variance}
+//'   \item{resD}{}
+//'   \item{logresDsq_o_C}{}
+//' }
+//'
+//' @useDynLib doubletree
+//' @importFrom Rcpp sourceCpp
+//' @export
+// [[Rcpp::export]]
+List update_alpha_subid_doubletree2(int u,
+                                   int v1,
+                                   arma::cube g_phi,// pL1 by pL2 by K-1
+                                   double tau_2_t_u,
+                                   arma::cube E_eta,//pL1 by K-1 by pL2
+                                   arma::mat E_xi_u,// pL1 by K-1
+                                   arma::mat X,// N by J
+                                   arma::mat rmat,//N by K
+                                   arma::mat emat,//N by pL1
+                                   arma::vec h_pau,//p2
+                                   arma::vec levels,//p2
+                                   arma::vec subject_ids,
+                                   arma::vec v2_lookup//N by 1
+){
+  int n = subject_ids.size(), J = X.n_cols, K = rmat.n_cols;
+  int p = h_pau.size(), pL1 = emat.n_cols;
+  int ii = 0;
+  int vv = 0;
+  int uu = (int) u-1;
+
+  arma::vec resC(K-1);resC.zeros(); // inv C, or variance
+  arma::vec resD(K-1);resD.zeros();
+  arma::vec logresDsq_o_C(K-1);logresDsq_o_C.zeros();
+
+  int vv1 = v1-1;
+  for (int k=0;k<K-1;k++){
+    resC(k) = 1.0/(tau_2_t_u*h_pau(uu));
+    for (int i=0;i<n;i++){
+      ii = (int) subject_ids(i)-1;
+      vv = (int) v2_lookup(ii)-1;
+      for (int m=k;m<K;m++){
+        resC(k) += 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*emat(ii,vv1);// need to make sure emat have correct one-hot representations for observed CODs.
+        if (m<k+1){
+          resD(k) += emat(ii,vv1)*(rmat(ii,m)*0.5 - 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
+        }else{
+          resD(k) += emat(ii,vv1)*(-rmat(ii,m)*0.5 - 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
+        }
+      }
+    }
+    logresDsq_o_C(k) = 2.0*log(abs(resD(k)))-log(resC(k));
+  }
+  resC = 1.0/resC;
+  return List::create(Named("resC")=resC,// this is actually 1/C in the paper, the variance
+                      Named("resD")=resD,
+                      Named("logresDsq_o_C")=logresDsq_o_C);
+}
+
+
 
 
 // others not organized:

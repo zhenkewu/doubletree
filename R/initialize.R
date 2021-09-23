@@ -455,16 +455,25 @@ initialize_nlcm_doubletree <- function(Y,A,
 
   ## multinomial variatoinal parameters: N by pL1 - COD for people in target domain.
   if (is.null(vi_params[["emat"]])){ # CHECK: are any of the pL1 leaves not observed in the leaf_ids[[1]]? If no, then remove that leaf.
-    tmp_indicators <- sample(1:pL1,size=n,replace=TRUE)
+
+    obs_cts <- sapply(1:pL1,function(x){sum(v_units[[1]][!is.na(v_units[[1]])]==x)+1})
+
+    tmp_indicators <- rep(NA,n)
+
     if (sum(!is.na(v_units[[1]]))>0){ # if there is at least one observed leaf label in tree1.
       tmp_indicators[!is.na(v_units[[1]])] <- v_units[[1]][!is.na(v_units[[1]])]
+    }
+    if (scenario!="a"){
+      tmp_indicators[is.na(v_units[[1]])]  <-
+        sample(1:pL1,size=length(is.na(v_units[[1]])),replace=TRUE,prob=obs_cts/sum(obs_cts))
     }
     vi_params$emat <- unMAP(tmp_indicators) # this is for all observation; ignore the ones with observed CODs.
   } # NB: need to selectively ignore the ones with observed COD.
 
   ## multinomial variational parameters: N by K - class for people in each source and target domain.
   if (is.null(vi_params[["rmat"]])){ # always missing in latent class analysis!
-    vi_params$rmat <- unMAP(sample(1:K,size=n,replace=TRUE))
+    vi_params$rmat <- cbind(rep(1,n),matrix(0,nrow=n,ncol=K-1))
+    #vi_params$rmat <- unMAP(sample(1:K,size=n,replace=TRUE))
   }
 
   ##############################################################################

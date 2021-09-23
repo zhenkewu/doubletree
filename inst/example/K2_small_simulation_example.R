@@ -159,6 +159,8 @@ curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==1] <- NA
 curr_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==2] <- NA
 curr_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]]
 
+
+
 mod <- nlcm_doubletree(
   example_data_doubletree$Y,curr_leaf_ids,
   example_data_doubletree$truth$mytrees,weighted_edges = c(FALSE,FALSE),
@@ -179,7 +181,7 @@ mod <- nlcm_doubletree(
   vi_params_init = list(),
   hyperparams_init = list(),
   random_init = !FALSE,
-  hyper_fixed = list(K=20, LD=TRUE,# number of latent classes.
+  hyper_fixed = list(K=3, LD=TRUE,# number of latent classes.
                      a1 = rep(20,max(igraph::V(cause_tree)$levels)),
                      b1 = rep(1,max(igraph::V(cause_tree)$levels)),
                      a2=matrix(1,nrow=length(ancestors1),ncol=max(igraph::V(domain_tree)$levels)),

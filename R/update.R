@@ -93,85 +93,95 @@ update_vi_params_doubletree <- function(
     E_eta          <- moments_cpp$E_eta
   }
 
-  # update mu_gamma,sigma_gamma,prob1:----------------------------------------
-  for (u1 in seq_update1){
-    tau_1_t[u1] <- tau_1[levels[[1]][u1]]
-    if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
-      prob1[u1] <- 1
-    }
-    gamma_update <- update_gamma_subid_doubletree(
-      u1,g_psi,
-      tau_1_t[u1],
-      E_beta,as.matrix(prob1[u1]*mu_gamma[[u1]],nrow=J,ncol=K),
-      as.matrix(X_zeropad),
-      rmat,emat,
-      h_pau[[1]],
-      leaf_ids_nodes[[1]][[u1]])
-
-    mu_gamma[[u1]]    <-   gamma_update$resB*gamma_update$resA #  J by K
-    sigma_gamma[[u1]] <-   gamma_update$resA
-
-    # update probability:
-    w1_u <- digamma(a1_t[levels[[1]][u1]])-digamma(b1_t[levels[[1]][u1]])+
-      0.5*exp(logSumExp(c(gamma_update$logresBsq_o_A)))-
-      0.5*J*K*log(tau_1_t[u1]*h_pau[[1]][u1])-0.5*sum(-log(sigma_gamma[[u1]]))
-
-    prob1[u1] <- expit(w1_u)
-    if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
-      prob1[u1] <- 1
-    }
-    # recalculate moments; the ones that matters are the descedant nodes of u1:
-    moments_cpp <- get_moments_cpp_eco_gamma_doubletree(
-      prob1,array(unlist(mu_gamma),c(J,K,p1)),array(unlist(sigma_gamma),c(J,K,p1)),
-      E_beta,E_beta_sq,ancestors[[1]],leaf_ids_nodes[[1]][[u1]])
-    E_beta <- moments_cpp$E_beta
-    E_beta_sq <- moments_cpp$E_beta_sq
-  }
-
-
-  # # update for the mu_alpha, sigma_alpha, prob2--------------------------------
-  # for (v1 in 1:pL1){
-  #   if (!LD){prob2[[v1]]<- c(1,rep(0,p2-1))} # no updates for prob2 if conditional independence is assumed.
-  #   for (u2 in seq_update2[[v1]]){
-  #     tau_2_t[u2] <- tau_2[levels[[2]][u2]]
-  #     if (LD){ # only update alpha related VI parameters when K=2, and LD being TRUE.
-  #       # update mu_alpha:
-  #       if (!is.null(s2_cu_oneset[[v1]]) && u2%in%s2_cu_oneset[[v1]]){
-  #         prob2[[v1]][u2] <- 1
-  #       }
-  #       alpha_update <- update_alpha_subid_doubletree(
-  #         u2,v1,g_phi,tau_2_t[u2],E_eta,
-  #         as.matrix(sweep(mu_alpha[[u2]],MARGIN=1,do.call("rbind",prob2)[,u2],"*")),
-  #         as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
-  #         subject_id_list[[2]][[u2]],v_units[[2]])
-  #
-  #       mu_alpha[[u2]][v1,]    <-  alpha_update$resD*alpha_update$resC
-  #       sigma_alpha[[u2]][v1,] <-  alpha_update$resC
-  #
-  #       # need to do this for every node in u2
-  #       w2_cu <- digamma(a2_t[v1,levels[[2]][u2]])-digamma(b2_t[v1,levels[[2]][u2]])+
-  #         0.5*exp(logSumExp(c(alpha_update$logresDsq_o_C)))-
-  #         0.5*(K-1)*log(tau_2_t[u2]*h_pau[[2]][u2])+0.5*sum(log(sigma_alpha[[u2]][v1,]))
-  #
-  #       prob2[[v1]][u2] <- expit(w2_cu)
-  #
-  #       if (!is.null(s2_cu_oneset[[v1]]) && u2%in%s2_cu_oneset[[v1]]){
-  #         prob2[[v1]][u2] <- 1
-  #       }
-  #     } else{
-  #       mu_alpha[[u2]][v1,] <- (0+(u2==1))*1e10 # basically just to make it c(1,0) for the root.
-  #     }
-  #
-  #     # recalculate moments; the ones that matters are the descedant nodes of u1:
-  #     moments_cpp <- get_moments_cpp_eco_alpha_doubletree(
-  #       as.matrix(do.call("rbind",prob2)),
-  #       array(unlist(mu_alpha),c(pL1,K-1,p2)),array(unlist(sigma_alpha),c(pL1,K-1,p2)),
-  #       E_eta,E_eta_sq,ancestors[[2]],leaf_ids_nodes[[2]][[u2]])
-  #
-  #     E_eta          <- moments_cpp$E_eta
-  #     E_eta_sq       <- moments_cpp$E_eta_sq
+  # # update mu_gamma,sigma_gamma,prob1:----------------------------------------
+  # for (u1 in seq_update1){
+  #   tau_1_t[u1] <- tau_1[levels[[1]][u1]]
+  #   if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
+  #     prob1[u1] <- 1
   #   }
+  #   gamma_update <- update_gamma_subid_doubletree(
+  #     u1,g_psi,
+  #     tau_1_t[u1],
+  #     E_beta,as.matrix(prob1[u1]*mu_gamma[[u1]],nrow=J,ncol=K),
+  #     as.matrix(X_zeropad),
+  #     rmat,emat,
+  #     h_pau[[1]],
+  #     leaf_ids_nodes[[1]][[u1]])
+  #
+  #   mu_gamma[[u1]]    <-   gamma_update$resB*gamma_update$resA #  J by K
+  #   sigma_gamma[[u1]] <-   gamma_update$resA
+  #
+  #   # update probability:
+  #   w1_u <- digamma(a1_t[levels[[1]][u1]])-digamma(b1_t[levels[[1]][u1]])+
+  #     0.5*exp(logSumExp(c(gamma_update$logresBsq_o_A)))-
+  #     0.5*J*K*log(tau_1_t[u1]*h_pau[[1]][u1])-0.5*sum(-log(sigma_gamma[[u1]]))
+  #
+  #   prob1[u1] <- expit(w1_u)
+  #   if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
+  #     prob1[u1] <- 1
+  #   }
+  #   # recalculate moments; the ones that matters are the descedant nodes of u1:
+  #   moments_cpp <- get_moments_cpp_eco_gamma_doubletree(
+  #     prob1,array(unlist(mu_gamma),c(J,K,p1)),array(unlist(sigma_gamma),c(J,K,p1)),
+  #     E_beta,E_beta_sq,ancestors[[1]],leaf_ids_nodes[[1]][[u1]])
+  #   E_beta <- moments_cpp$E_beta
+  #   E_beta_sq <- moments_cpp$E_beta_sq
   # }
+
+
+  # update for the mu_alpha, sigma_alpha, prob2--------------------------------
+  for (v1 in 1:pL1){
+    if (!LD){prob2[[v1]]<- c(1,rep(0,p2-1))} # no updates for prob2 if conditional independence is assumed.
+    for (u2 in seq_update2[[v1]]){
+      tau_2_t[u2] <- tau_2[levels[[2]][u2]]
+      if (LD){ # only update alpha related VI parameters when K=2, and LD being TRUE.
+        # update mu_alpha:
+        if (!is.null(s2_cu_oneset[[v1]]) && u2%in%s2_cu_oneset[[v1]]){
+          prob2[[v1]][u2] <- 1
+        }
+        alpha_update <- update_alpha_subid_doubletree(
+          u2,v1,g_phi,tau_2_t[u2],E_eta,
+          as.matrix(sweep(mu_alpha[[u2]],MARGIN=1,do.call("rbind",prob2)[,u2],"*")),
+          as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
+          subject_id_list[[2]][[u2]],v_units[[2]])
+
+        # alpha_update2 <- update_alpha_subid_doubletree2(
+        #   u2,v1,g_phi,tau_2_t[u2],E_eta,
+        #   as.matrix(sweep(mu_alpha[[u2]],MARGIN=1,do.call("rbind",prob2)[,u2],"*")),
+        #   as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
+        #   subject_id_list[[2]][[u2]],v_units[[2]])
+
+        mu_alpha[[u2]][v1,]    <-  alpha_update$resD*alpha_update$resC
+        sigma_alpha[[u2]][v1,] <-  alpha_update$resC
+
+
+        # print(sum(alpha_update2$resD*alpha_update2$resC-alpha_update$resD*alpha_update$resC))
+        # print(sum(alpha_update2$resC-sigma_alpha[[u2]][v1,]))
+
+        # need to do this for every node in u2
+        w2_cu <- digamma(a2_t[v1,levels[[2]][u2]])-digamma(b2_t[v1,levels[[2]][u2]])+
+          0.5*exp(logSumExp(c(alpha_update$logresDsq_o_C)))-
+          0.5*(K-1)*log(tau_2_t[u2]*h_pau[[2]][u2])+0.5*sum(log(sigma_alpha[[u2]][v1,]))
+
+        prob2[[v1]][u2] <- expit(w2_cu)
+
+        if (!is.null(s2_cu_oneset[[v1]]) && u2%in%s2_cu_oneset[[v1]]){
+          prob2[[v1]][u2] <- 1
+        }
+      } else{
+        mu_alpha[[u2]][v1,] <- (0+(u2==1))*1e10 # basically just to make it c(1,0) for the root.
+      }
+
+      # recalculate moments; the ones that matters are the descedant nodes of u1:
+      moments_cpp <- get_moments_cpp_eco_alpha_doubletree(
+        as.matrix(do.call("rbind",prob2)),
+        array(unlist(mu_alpha),c(pL1,K-1,p2)),array(unlist(sigma_alpha),c(pL1,K-1,p2)),
+        E_eta,E_eta_sq,ancestors[[2]],leaf_ids_nodes[[2]][[u2]])
+
+      E_eta          <- moments_cpp$E_eta
+      E_eta_sq       <- moments_cpp$E_eta_sq
+    }
+  }
 
   # update dirich_mat: the variational parameters for the CSMFs in all the domains:
   for (v2 in 1:pL2){

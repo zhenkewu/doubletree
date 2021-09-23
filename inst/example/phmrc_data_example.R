@@ -92,7 +92,7 @@ mod <- nlcm_doubletree(
   plot_fig   = FALSE, # <-- used?
   tol        = 1E-8,
   tol_hyper = 1E-4,
-  max_iter = 100,
+  max_iter = 1000,
   nrestarts = 1,
   keep_restarts = TRUE,
   parallel = TRUE,
@@ -101,7 +101,7 @@ mod <- nlcm_doubletree(
   vi_params_init = list(),
   hyperparams_init = list(),
   random_init = FALSE,
-  hyper_fixed = list(K=2, LD=TRUE,# number of latent classes.
+  hyper_fixed = list(K=10, LD=TRUE,# number of latent classes.
                      a1 = rep(20,max(igraph::V(cause_tree)$levels)),
                      b1 = rep(1,max(igraph::V(cause_tree)$levels)),
                      a2=matrix(1,nrow=length(dsgn$ancestors[[1]]),ncol=max(igraph::V(domain_tree)$levels)),

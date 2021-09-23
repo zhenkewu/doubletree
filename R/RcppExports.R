@@ -275,6 +275,42 @@ update_alpha_subid_doubletree <- function(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u
     .Call('_doubletree_update_alpha_subid_doubletree', PACKAGE = 'doubletree', u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup)
 }
 
+#' Update alpha's variational distribution.
+#'
+#' @param u node id; internal or leaf node in tree1
+#' @param v1 leaf node id in tree1.
+#' @param g_psi,g_phi g of local variational parameters
+#' @param tau_2_t_u variational Gaussian variances for gamma
+#' @param E_eta,E_xi_u moment updates produced by \code{\link{get_moments_cpp}};
+#' \code{E_xi_u} is directly calculated
+#' @param X transformed data: `2Y-1`; contains potential missing data.
+#' @param rmat a matrix of variational probabilities of all observations
+#' belong to K classes; N by K; each row sums to 1
+#' @param emat a matrix of variational probability for all observations
+#' belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
+#' for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+#' of that cause.
+#' @param h_pau a numeric vector of length p indicating the branch length
+#' between a node and its parent; for tree2
+#' @param levels a vector of possibly repeating integers from 1 to Fg2
+#' @param subject_ids integer ids for subjects nested under node `u`
+#' @param v2_lookup a vector of length equal to the total number of rows in X;
+#' each element is an integer, indicating which leaf does the observation belong to in tree2.
+#'
+#' @return  a list
+#' \describe{
+#'   \item{resC}{actually 1/C in the paper, this is variance}
+#'   \item{resD}{}
+#'   \item{logresDsq_o_C}{}
+#' }
+#'
+#' @useDynLib doubletree
+#' @importFrom Rcpp sourceCpp
+#' @export
+update_alpha_subid_doubletree2 <- function(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup) {
+    .Call('_doubletree_update_alpha_subid_doubletree2', PACKAGE = 'doubletree', u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup)
+}
+
 #' calculate line 1, 2, and 15 of ELBO*
 #'
 #' Intended to be faster than its counterpart implementation in `R`.
