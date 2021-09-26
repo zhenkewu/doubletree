@@ -20,4 +20,5 @@ generate random vectors from Dirichlet distribution
 \examples{
 
 myrdirich(10,c(1,1,1))
+
 }

@@ -1,14 +1,14 @@
 Package: doubletree
 Type: Package
 Title: Nested Latent Class Models for Domain-Adaptive and Semisupervised Learning of Cause-of-Deaths using Verbal Autopsy
-Version: 0.3.2
-Date: 2021-09-22
+Version: 0.5.0
+Date: 2021-09-26
 Authors@R: c(
   person("Zhenke", "Wu", email="zhenkewu@umich.edu",role=c("cre","aut"),
          comment = c(ORCID = "0000-0001-7582-669X")))
 Maintainer: Zhenke Wu <zhenkewu@umich.edu>
 Description: This package implements variational algorithm to probablistically
-    assign casue-of-death using multivariate binary data (verbal autopsy). The model
+    assign cause-of-death using multivariate binary data (verbal autopsy). The model
     is for semi-supervised learning of unobserved causes of deaths for
     subjects in a target domain using data from training domains. The model is equipped
     with two components of the prior: 1) a tree-structured prior that promotes similarity in the

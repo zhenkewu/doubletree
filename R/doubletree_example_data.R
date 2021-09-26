@@ -27,7 +27,6 @@
 #' There is one row for every parent-child pair.
 "example_domain_edges"
 
-
 #' example cause ids
 #'
 #' a vector of character strings
@@ -58,3 +57,12 @@
 #'
 #' @format matrix; the length is 7841 by 168
 "X0"
+
+
+#' simulated data (K=2,J=20,N=1000)
+#'
+#' a matrix of simulated data
+#' `1`: yes; `0`: no
+#'
+#' @format matrix; 1000 by 20
+"example_data_doubletree"

@@ -14,7 +14,6 @@
 #' @param a1,b1,a2,b2,dmat,K,LD,s1_u_zeroset,s1_u_oneset,s2_cu_zeroset,s2_cu_oneset
 #' fixed hyperparameters
 #' @importFrom matrixStats logSumExp
-#' @export
 #' @family Internal VI functions
 update_vi_params_doubletree <- function(
   leaf_ids_units,
@@ -45,7 +44,7 @@ update_vi_params_doubletree <- function(
     prob1[s1_u_zeroset] <- 0
     for (v in s1_u_zeroset){ # this may not matter; but just to be logically clear.
       mu_gamma[[v]] <- mu_gamma[[v]]*0.0               # no diffusion
-      sigma_gamma[[v]] <- matrix(tau_1_t[v]*h_pau[[1]][v],nrow=J,ncol=K) # just prior variance.
+      sigma_gamma[[v]] <- matrix(tau_1[levels[[1]][v]]*h_pau[[1]][v],nrow=J,ncol=K) # just prior variance.
     }
   }
   if (!is.null(s1_u_oneset)){
@@ -65,7 +64,7 @@ update_vi_params_doubletree <- function(
         prob2[[v]][s2_cu_zeroset[[v]]] <- 0
         for (u in s2_cu_zeroset[[v]]){ # this may not matter; but just to be logically clear.
           mu_alpha[[u]] <- mu_alpha[[u]]*0.0                                     # no diffusion.
-          sigma_alpha[[u]] <- matrix(tau_2_t[u]*h_pau[[2]][u],nrow=pL1,ncol=K-1) # just prior variance.
+          sigma_alpha[[u]] <- matrix(tau_2[levels[[2]][u]]*h_pau[[2]][u],nrow=pL1,ncol=K-1) # just prior variance.
         }
       }
     }
@@ -96,8 +95,8 @@ update_vi_params_doubletree <- function(
   }
 
   # update mu_gamma,sigma_gamma,prob1:----------------------------------------
+  tau_1_t <- tau_1[levels[[1]]]
   for (u1 in seq_update1){
-    tau_1_t[u1] <- tau_1[levels[[1]][u1]]
     if (!is.null(s1_u_oneset) && u1%in%s1_u_oneset){
       prob1[u1] <- 1
     }
@@ -113,9 +112,9 @@ update_vi_params_doubletree <- function(
     mu_gamma[[u1]]    <-   gamma_update$resB*gamma_update$resA #  J by K
     sigma_gamma[[u1]] <-   gamma_update$resA
 
-    # update probability:
+    # update probability:---------------------------------------------------
     w1_u <- digamma(a1_t[levels[[1]][u1]])-digamma(b1_t[levels[[1]][u1]])+
-      0.5*exp(logSumExp(c(gamma_update$logresBsq_o_A)))-
+      0.5*sum(gamma_update$resBsq_o_A)-
       0.5*J*K*log(tau_1_t[u1]*h_pau[[1]][u1])-0.5*sum(-log(sigma_gamma[[u1]]))
 
     prob1[u1] <- expit(w1_u)
@@ -130,29 +129,51 @@ update_vi_params_doubletree <- function(
     E_beta_sq <- moments_cpp$E_beta_sq
   }
 
-
   # update for the mu_alpha, sigma_alpha, prob2--------------------------------
+  tau_2_t <- tau_2[levels[[2]]]
   for (v1 in 1:pL1){
     if (!LD){prob2[[v1]]<- c(1,rep(0,p2-1))} # no updates for prob2 if conditional independence is assumed.
     for (u2 in seq_update2[[v1]]){
-      tau_2_t[u2] <- tau_2[levels[[2]][u2]]
       if (LD){ # only update alpha related VI parameters when K=2, and LD being TRUE.
-        # update mu_alpha:
+        # update mu_alpha:---------------------------------------------------
         if (!is.null(s2_cu_oneset[[v1]]) && u2%in%s2_cu_oneset[[v1]]){
           prob2[[v1]][u2] <- 1
         }
-        alpha_update <- update_alpha_subid_doubletree(
+        # alpha_update <- update_alpha_subid_doubletree(
+        #   u2,v1,g_phi,tau_2_t[u2],E_eta,
+        #   as.matrix(sweep(mu_alpha[[u2]],MARGIN=1,do.call("rbind",prob2)[,u2],"*")),
+        #   as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
+        #   subject_id_list[[2]][[u2]],v_units[[2]])
+
+        alpha_update <- update_alpha_subid_doubletree0(
           u2,v1,g_phi,tau_2_t[u2],E_eta,
           as.matrix(sweep(mu_alpha[[u2]],MARGIN=1,do.call("rbind",prob2)[,u2],"*")),
           as.matrix(X),rmat,emat,h_pau[[2]],levels[[2]],
           subject_id_list[[2]][[u2]],v_units[[2]])
 
+        # tmp_resD <- alpha_update$resD_mat
+        # absv <- abs(tmp_resD)
+        # signv <- sign(tmp_resD)
+
+        # curr_resD <- rep(NA,K-1)
+        # for (k in 1:(K-1)){
+        #   tmpres <- signlogsumexp(log(absv[signv[,k]!=0,k]),
+        #                           signv[signv[,k]!=0,k])
+        #   curr_resD[k] <- tmpres$res_sign*exp(tmpres$res)
+        # }
+
+        #mu_alpha[[u2]][v1,] <- curr_resD*alpha_update$resC
         mu_alpha[[u2]][v1,]    <-  alpha_update$resD*alpha_update$resC
         sigma_alpha[[u2]][v1,] <-  alpha_update$resC
 
-        # need to do this for every node in u2
+        # print(sum(curr_resD-alpha_update0$resD))
+        # print(sum(alpha_update$resC-alpha_update0$resC))
+
+
+        # update prob2 ---------------------------------------------------
         w2_cu <- digamma(a2_t[v1,levels[[2]][u2]])-digamma(b2_t[v1,levels[[2]][u2]])+
-          0.5*exp(logSumExp(c(alpha_update$logresDsq_o_C)))-
+          0.5*sum(alpha_update$resDsq_o_C)-
+          # 0.5*sum(curr_resD^2*alpha_update$resC)-
           0.5*(K-1)*log(tau_2_t[u2]*h_pau[[2]][u2])+0.5*sum(log(sigma_alpha[[u2]][v1,]))
 
         prob2[[v1]][u2] <- expit(w2_cu)
@@ -175,26 +196,30 @@ update_vi_params_doubletree <- function(
     }
   }
 
-  # update dirich_mat: the variational parameters for the CSMFs in all the domains:
+  # update dirich_mat: ---------------------------------------------------
+  # the variational parameters for the CSMFs in all the domains:
   for (v2 in 1:pL2){
     for (v1 in 1:pL1){
       dirich_mat[v1,v2] <- dmat[v1,v2] + sum(emat[v_units[[2]]==v2,v1])
     }
   }
-  # intermediate quantities:
+
+  # # intermediate quantities:--------------------------------------------------
   digamma_emat <- as.matrix(sweep(digamma(dirich_mat),MARGIN = 2,digamma(colSums(dirich_mat)),"-"))
   F_array      <- F_doubletree(psi,g_psi,phi,g_phi,X,ind_obs_i,
-                               rmat,E_beta,E_beta_sq,E_eta,E_eta_sq,v1_units_NA_replaced,v_units[[2]])
-  # update emat:
+                                rmat,E_beta,E_beta_sq,E_eta,E_eta_sq,v1_units_NA_replaced,v_units[[2]])
+  # update emat:---------------------------------------------------
   if (scenario !="a"){# this means`leaf_ids_units[[1]]$NA_tree1` is not empty:
     emat_update <- update_emat_with_F_doubletree(F_array,rmat,digamma_emat,v_units[[2]])
     emat[leaf_ids_units[[1]]$NA_tree1,] <- as.matrix(emat_update)[leaf_ids_units[[1]]$NA_tree1,]
   }
 
-  # update rmat: for all subjects their variational probabilities of belonging to each of K classes: step 1b and 1c in Appendix
+  # update rmat:-------------------------------------------------------
+  # for all subjects their variational probabilities of belonging to each of K classes: step 1b and 1c in Appendix
   if (LD) {rmat <- update_rmat_with_F_doubletree(F_array,emat)}
 
-  # update variational parameters for q_t(rho*_) q_t(rho_cl)
+  # update a_t, b_t: ---------------------------------------------------
+  # variational parameters for q_t(rho*_) q_t(rho_cl)
   for (l in 1:Fg1){
     a1_t[l] <- a1[l] + sum(prob1[levels[[1]]==l])
     b1_t[l] <- b1[l] + sum(1-prob1[levels[[1]]==l])
@@ -205,7 +230,8 @@ update_vi_params_doubletree <- function(
     a2_t[,l] <- a2[,l,drop=FALSE] + rowSums(prob2_mat[,levels[[2]]==l,drop=FALSE])
     b2_t[,l] <- b2[,l,drop=FALSE] + rowSums(1-prob2_mat[,levels[[2]]==l,drop=FALSE])
   }
-  # return results!
+
+  # return results:
   make_list(a1_t,b1_t,a2_t,b2_t,emat,
             rmat,dirich_mat,tau_1_t,tau_2_t,
             sigma_gamma,mu_gamma,sigma_alpha,mu_alpha,
@@ -213,8 +239,7 @@ update_vi_params_doubletree <- function(
             E_beta_sq,E_eta_sq,E_beta,E_eta)# intermediate calculations useful when calculating ELBO*.
 }
 
-#' update hyperparameters in the nested latent class model with observations organized in
-#' double trees
+#' update hyperparameters
 #'
 #' NB: argument redundancy may exist
 #'
@@ -230,20 +255,20 @@ update_vi_params_doubletree <- function(
 #'
 #' @return a list of updated hyperparameters: tau_1,tau_2,psi,g_psi,phi,g_phi,
 #'  along with a new ELBO value.
-#' @export
+#' @family Internal VI functions
 update_hyperparams_doubletree <- function(
   h_pau,
   levels,
   v_units,
   X,n,J,p1,p2,pL1,pL2,Fg1,Fg2, # redundant but streamlined in lcm_tree.
   ind_obs_i,# data and design
-  prob1,prob2,mu_gamma,mu_alpha,rmat,emat,dirich_mat,# why is emat not needed here; perhaps it is in sigma_gamma/sigma_alpha already.
+  prob1,prob2,mu_gamma,mu_alpha,rmat,emat,dirich_mat,
   sigma_gamma,sigma_alpha,
-  tau_1_t,tau_2_t, # <-- update tau_1, tau_2.(this is unique values); tau_1_t is a full vector.
+  tau_1_t,tau_2_t,
   a1_t,b1_t,a2_t,b2_t,
   E_beta_sq,E_eta_sq,E_beta,E_eta,# vi parameters; !!! although this can be calculated from mu's sigma's
   psi,g_psi,phi,g_phi,
-  tau_1,tau_2, # hyper-params
+  tau_1,tau_2, # hyper-parameters to be updated on a less frequent schedule.
   a1,b1,a2,b2,dmat,K,LD,tau_update_levels,#fixed hyper-parameters not to be update.
   update_hyper,quiet # called in 'fit_nlcm_tree' to update tau_1 and tau_2 or not.
 ){
@@ -253,19 +278,20 @@ update_hyperparams_doubletree <- function(
 
   prob2_mat <- do.call("rbind",prob2)
 
-  # update local vi parameters, these can be moved to updating VI. In the model fitting, this is run at every iteration.
-  psi   <- aperm(sqrt(E_beta_sq),c(3,1,2)) # the permutation is to match the dimensions; could be done cleaner...
+  # update local vi parameters:------------------------------------------------
+  # the permutation is to match the dimensions in cpp functions
+  psi   <- aperm(sqrt(E_beta_sq),c(3,1,2))
   phi   <- aperm(sqrt(E_eta_sq),c(1,3,2))
 
   g_psi <- g_fun.vec(psi)
   g_phi <- g_fun.vec(phi)
 
-  # update hyper-parameters: tau_1, tau_2:
-  expected_ss_alpha <- numeric(p2) # marginal variational posterior expectation of squared (alpha or gamma):
+  # update hyper-parameters: tau_1, tau_2:-------------------------------------
+  # marginal variational posterior expectation of squared (alpha or gamma):
+  expected_ss_alpha <- numeric(p2)
   expected_ss_gamma <- numeric(p1)
   h_pau1 <- h_pau[[1]]
   h_pau2 <- h_pau[[2]]
-  prob2_mat <- do.call("rbind",prob2)
 
   for (u in 1:p1){
     expected_ss_gamma[u] <- 1/h_pau1[u]*sum(
@@ -279,18 +305,20 @@ update_hyperparams_doubletree <- function(
         (1-prob2_mat[,u])*tau_2_t[u]*h_pau2[u]) #pL1 # the sum is pL1*(K-1) elements.
   }
 
-  if (update_hyper){ # computed at each iteration - TRUE to update the hyperparameters.
+  # update hyperparameters (tau_1, and tau_2) if scheduled: -------------------------------
+  # prior is changed if updated.
+  if (update_hyper){
     for (l in 1:Fg1){
       if (l %in% tau_update_levels[[1]]){
         tau_1[l]  <- sum(expected_ss_gamma[levels[[1]]==l])/(J*K*sum(levels[[1]]==l))
-        # cat("> Updated tau_1 and tau_2; level ",l,":",  tau_1[l],", ",tau_2[l],". \n")
+        cat("> Updated  tau_1; level ",l,":",tau_1[l],". \n")
       }
     }
 
     for (l in 1:Fg2){
       if (l %in% tau_update_levels[[2]]){
         tau_2[l]  <- sum(expected_ss_alpha[levels[[2]]==l])/(pL1*(K-1)*sum(levels[[2]]==l))
-        # cat("> Updated tau_1 and tau_2; level ",l,":",  tau_1[l],", ",tau_2[l],". \n")
+        cat("> Updated  tau_2; level ",l,":",tau_2[l],". \n")
       }
     }
   }
@@ -302,6 +330,7 @@ update_hyperparams_doubletree <- function(
   expected_l_rho1    <- digamma(a1_t) - digamma(a1_t+b1_t)
   expected_l_1m_rho1 <- digamma(b1_t) - digamma(a1_t+b1_t)
 
+  # recalculate intermediate quantities because, psi, g_psi, phi, g_phi are now updated.
   digamma_emat <- as.matrix(sweep(digamma(dirich_mat),MARGIN = 2,digamma(colSums(dirich_mat)),"-"))
   F_array      <- F_doubletree(psi,g_psi,phi,g_phi,X,ind_obs_i,
                                rmat,E_beta,E_beta_sq,E_eta,E_eta_sq,v1_units_NA_replaced,v_units[[2]])
@@ -340,8 +369,10 @@ update_hyperparams_doubletree <- function(
   line_vec <- c(line_1, line_2, line_3,line_4,line_5,line_6,line_7,line_8,
                 line_9_10, line_11, line_12, line_13,line_14,line_15,line_16,line_17,line_18)
 
+  names(line_vec) <- c("line_1", "line_2", "line_3","line_4","line_5","line_6","line_7","line_8",
+                       "line_9_10", "line_11", "line_12", "line_13","line_14","line_15","line_16","line_17","line_18")
   ELBO <- sum(line_vec)
 
   # return results:
-  make_list(ELBO,psi,g_psi,phi,g_phi,tau_1,tau_2,line_vec)
+  make_list(ELBO,psi,g_psi,phi,g_phi,tau_1,tau_2)
 }

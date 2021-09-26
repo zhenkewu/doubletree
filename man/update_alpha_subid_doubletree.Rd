@@ -25,6 +25,8 @@ update_alpha_subid_doubletree(
 
 \item{v1}{leaf node id in tree1.}
 
+\item{g_phi}{g of local variational parameters}
+
 \item{tau_2_t_u}{variational Gaussian variances for gamma}
 
 \item{E_eta, E_xi_u}{moment updates produced by \code{\link{get_moments_cpp}};
@@ -37,7 +39,7 @@ belong to K classes; N by K; each row sums to 1}
 
 \item{emat}{a matrix of variational probability for all observations
 belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
-for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+for rows with obsered leaf nodes in tree1, we just have an one-hot representation.
 of that cause.}
 
 \item{h_pau}{a numeric vector of length p indicating the branch length
@@ -49,8 +51,6 @@ between a node and its parent; for tree2}
 
 \item{v2_lookup}{a vector of length equal to the total number of rows in X;
 each element is an integer, indicating which leaf does the observation belong to in tree2.}
-
-\item{g_psi, g_phi}{g of local variational parameters}
 }
 \value{
 a list

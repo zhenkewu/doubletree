@@ -26,6 +26,16 @@ double xlogx(double x){
   return(res);
 }
 
+
+//' logsumexp
+//'
+//' utility function
+//'
+//' @param logv_arma a vector of numbers
+//'
+//' @useDynLib doubletree
+//' @importFrom Rcpp sourceCpp
+//' @export
 // [[Rcpp::export]]
 double logsumexp(arma::vec logv_arma)
 {
@@ -125,7 +135,7 @@ arma::mat mtv(arma::mat mat, arma::vec v) {
 //'
 //' Get all moments that need updating when iterating over internal and leaf nodes;
 //' for both trees. When updating a node u, all the moments
-//' of the descedant nodes will be changed. A recalculation of the moments are necessary
+//' of the descendant nodes will be changed. A recalculation of the moments are necessary
 //' when moving on to another node.
 //'
 //' @param prob1,prob2 variational probabilities; `prob1` is for \code{s*_u} - length `p1`;
@@ -221,7 +231,7 @@ List get_moments_cpp_doubletree(arma::vec prob1,// p1
 //'
 //' Get all moments that need updating when iterating over internal and leaf nodes;
 //' for both trees. When updating a node u, all the moments
-//' of the descedant nodes will be changed. A recalculation of the moments are necessary
+//' of the descendant nodes will be changed. A recalculation of the moments are necessary
 //' when moving on to another node.
 //'
 //' @param prob1 variational probabilities; `prob1` is for \code{s*_u} - length `p1`.
@@ -278,7 +288,7 @@ List get_moments_cpp_eco_gamma_doubletree(arma::vec prob1,// p1
 //'
 //' Get all moments that need updating when iterating over internal and leaf nodes;
 //' for both trees. When updating a node u, all the moments
-//' of the descedant nodes will be changed. A recalculation of the moments are necessary
+//' of the descendant nodes will be changed. A recalculation of the moments are necessary
 //' when moving on to another node.
 //'
 //' @param prob2
@@ -602,12 +612,10 @@ arma::mat update_rmat_with_F_doubletree(arma::cube curr_F,//n,pL1,K
 //' belong to K classes; N by K; each row sums to 1
 //' @param emat a matrix of variational probability for all observations
 //' belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
-//' for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+//' for rows with observed leaf nodes in tree1, we just have an one-hot represention
 //' of that cause.
 //' @param h_pau a numeric vector of length p indicating the branch length
 //' between a node and its parent
-//' @param subject_ids_nonmissing the ids of subjects in the leaf descendants of node u;
-//' a list of length J, each is a list of subjects nested under u AND have complete info.
 //' @param leaf_desc a vector of leaf descendants nested under node `u`
 //'
 //' @return  a list
@@ -637,7 +645,7 @@ List update_gamma_subid_doubletree(int u,
   int uu = (int) u-1;
   arma::mat resA(J,K);resA.zeros(); // inv A, or variance
   arma::mat resB(J,K);resB.zeros();
-  arma::mat logresBsq_o_A(J,K);logresBsq_o_A.zeros();
+  arma::mat resBsq_o_A(J,K);resBsq_o_A.zeros();
 
   X_zeropad = 1.0*X_zeropad;
 
@@ -651,13 +659,13 @@ List update_gamma_subid_doubletree(int u,
         resB(j,k)  += sum(emat.col(curr_v)%(rmat.col(k)%(X_zeropad.col(j)*0.5-
           X_zeropad.col(j)%X_zeropad.col(j)*2.0*g_psi(curr_v,j,k)*(E_beta(j,k,curr_v)-E_zeta_u(j,k)))));
       }
-      logresBsq_o_A(j,k) = 2.0*log(abs(resB(j,k)))-log(resA(j,k));
       resA(j,k) = 1.0/resA(j,k);
+      resBsq_o_A(j,k) = pow(resB(j,k),2.0)*resA(j,k);
     }
   }
   return List::create(Named("resA")=resA,
                       Named("resB")=resB,
-                      Named("logresBsq_o_A")=logresBsq_o_A);
+                      Named("resBsq_o_A")=resBsq_o_A);
 }
 
 
@@ -668,7 +676,7 @@ List update_gamma_subid_doubletree(int u,
 //'
 //' @param u node id; internal or leaf node in tree1
 //' @param v1 leaf node id in tree1.
-//' @param g_psi,g_phi g of local variational parameters
+//' @param g_phi g of local variational parameters
 //' @param tau_2_t_u variational Gaussian variances for gamma
 //' @param E_eta,E_xi_u moment updates produced by \code{\link{get_moments_cpp}};
 //' \code{E_xi_u} is directly calculated
@@ -677,7 +685,7 @@ List update_gamma_subid_doubletree(int u,
 //' belong to K classes; N by K; each row sums to 1
 //' @param emat a matrix of variational probability for all observations
 //' belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
-//' for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+//' for rows with obsered leaf nodes in tree1, we just have an one-hot representation.
 //' of that cause.
 //' @param h_pau a numeric vector of length p indicating the branch length
 //' between a node and its parent; for tree2
@@ -719,9 +727,62 @@ List update_alpha_subid_doubletree(
   int uu = (int) u-1;
 
   arma::vec resC(K-1);resC.zeros(); // inv C, or variance
+  arma::mat resD_mat(n,K-1);resD_mat.zeros();
+  arma::vec pre_resC(2);pre_resC.zeros();
+  arma::vec resDsq_o_C(K-1);resDsq_o_C.zeros();
+
+  int vv1 = v1-1;
+  for (int k=0;k<K-1;k++){
+    resC(k) = -1.0*log(tau_2_t_u)-1.0*log(h_pau(uu));
+    // resC(k) = 1/(tau_2_t_u*h_pau(uu));
+    for (int i=0;i<n;i++){
+      ii = (int) subject_ids(i)-1;
+      vv = (int) v2_lookup(ii)-1;
+      for (int m=k;m<K;m++){
+        pre_resC(0) = 1.0*resC(k);
+        pre_resC(1) = log(2.0)+log(rmat(ii,m))+log(g_phi(vv1,vv,k))+log(emat(ii,vv1));
+        resC(k) = logsumexp(pre_resC);// need to make sure emat have correct one-hot representations for observed CODs.
+        // resC(k) += 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*emat(ii,vv1);// need to make sure emat have correct one-hot representations for observed CODs.
+        if (m<k+1){
+          resD_mat(i,k) += emat(ii,vv1)*rmat(ii,m)*(0.5 - 2.0*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
+        }else{
+          resD_mat(i,k) += emat(ii,vv1)*rmat(ii,m)*(-0.5 - 2.0*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
+        }
+      }
+    }
+    resC(k) = expm1(-resC(k))+1.0;
+  }
+  // resC = 1.0/resC;
+  return List::create(Named("resC")=resC,// this is actually 1/C in the paper, the variance
+                      Named("resD_mat")=resD_mat);
+}
+
+// [[Rcpp::export]]
+List update_alpha_subid_doubletree0(
+    int u,
+    int v1,
+    arma::cube g_phi,// pL1 by pL2 by K-1
+    double tau_2_t_u,
+    arma::cube E_eta,//pL1 by K-1 by pL2
+    arma::mat E_xi_u,// pL1 by K-1
+    arma::mat X,// N by J
+    arma::mat rmat,//N by K
+    arma::mat emat,//N by pL1
+    arma::vec h_pau,//p2
+    arma::vec levels,//p2
+    arma::vec subject_ids,
+    arma::vec v2_lookup//N by 1
+){
+  int n = subject_ids.size(), J = X.n_cols, K = rmat.n_cols;
+  int p = h_pau.size(), pL1 = emat.n_cols;
+  int ii = 0;
+  int vv = 0;
+  int uu = (int) u-1;
+
+  arma::vec resC(K-1);resC.zeros(); // inv C, or variance
   arma::vec resD(K-1);resD.zeros();
   arma::vec pre_resC(2);pre_resC.zeros();
-  arma::vec logresDsq_o_C(K-1);logresDsq_o_C.zeros();
+  arma::vec resDsq_o_C(K-1);resDsq_o_C.zeros();
 
   int vv1 = v1-1;
   for (int k=0;k<K-1;k++){
@@ -742,14 +803,73 @@ List update_alpha_subid_doubletree(
         }
       }
     }
-    logresDsq_o_C(k) = 2.0*log(abs(resD(k)))-resC(k);
     resC(k) = expm1(-resC(k))+1.0;
+    resDsq_o_C(k) = pow(resD(k),2.0)*resC(k);
   }
   // resC = 1.0/resC;
   return List::create(Named("resC")=resC,// this is actually 1/C in the paper, the variance
                       Named("resD")=resD,
-                      Named("logresDsq_o_C")=logresDsq_o_C);
+                      Named("resDsq_o_C")=resDsq_o_C);
 }
+
+// List update_alpha_subid_doubletree(
+//     int u,
+//     int v1,
+//     arma::cube g_phi,// pL1 by pL2 by K-1
+//     double tau_2_t_u,
+//     arma::cube E_eta,//pL1 by K-1 by pL2
+//     arma::mat E_xi_u,// pL1 by K-1
+//     arma::mat X,// N by J
+//     arma::mat rmat,//N by K
+//     arma::mat emat,//N by pL1
+//     arma::vec h_pau,//p2
+//     arma::vec levels,//p2
+//     arma::vec subject_ids,
+//     arma::vec v2_lookup//N by 1
+// ){
+//   int n = subject_ids.size(), J = X.n_cols, K = rmat.n_cols;
+//   int p = h_pau.size(), pL1 = emat.n_cols;
+//   int ii = 0;
+//   int vv = 0;
+//   int uu = (int) u-1;
+//
+//   arma::vec resC(K-1);resC.zeros(); // inv C, or variance
+//   arma::vec resD(K-1);resD.zeros();
+//   arma::vec pre_resC(2);pre_resC.zeros();
+//   arma::vec resDsq_o_C(K-1);resDsq_o_C.zeros();
+//
+//   int vv1 = v1-1;
+//   for (int k=0;k<K-1;k++){
+//     resC(k) = -1.0*log(tau_2_t_u)-1.0*log(h_pau(uu));
+//     // resC(k) = 1/(tau_2_t_u*h_pau(uu));
+//     for (int i=0;i<n;i++){
+//       ii = (int) subject_ids(i)-1;
+//       vv = (int) v2_lookup(ii)-1;
+//       double tmp1 = (0.5 - 2.0*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
+//       double tmp2 = (-0.5 - 2.0*g_phi(vv1,vv,k)*(E_eta(vv1,k,vv)-E_xi_u(vv1,k)));
+//       for (int m=k;m<K;m++){
+//         pre_resC(0) = 1.0*resC(k);
+//         pre_resC(1) = log(2.0)+log(rmat(ii,m))+log(g_phi(vv1,vv,k))+log(emat(ii,vv1));
+//         resC(k) = logsumexp(pre_resC);// need to make sure emat have correct one-hot representations for observed CODs.
+//         // resC(k) += 2.0*rmat(ii,m)*g_phi(vv1,vv,k)*emat(ii,vv1);// need to make sure emat have correct one-hot representations for observed CODs.
+//         if (m<k+1){
+//           resD(k) += emat(ii,vv1)*rmat(ii,m)*tmp1;
+//         }else{
+//           resD(k) += emat(ii,vv1)*rmat(ii,m)*tmp2;
+//         }
+//       }
+//     }
+//     resC(k) = expm1(-resC(k))+1.0;
+//     resDsq_o_C(k) = pow(resD(k),2.0)*resC(k);
+//   }
+//   // resC = 1.0/resC;
+//   return List::create(Named("resC")=resC,// this is actually 1/C in the paper, the variance
+//                       Named("resD")=resD,
+//                       Named("resDsq_o_C")=resDsq_o_C);
+// }
+
+
+
 // get_est_cpp: summary
 
 //' calculate line 1, 2, and 15 of ELBO*

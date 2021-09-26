@@ -77,4 +77,8 @@ of \code{\link[=initialize_nlcm_doubletree]{initialize_nlcm_doubletree()}}; we u
 \description{
 Used by \code{\link[=fit_nlcm_doubletree]{fit_nlcm_doubletree()}}; followed by \code{\link[=update_hyperparams_doubletree]{update_hyperparams_doubletree()}}
 }
+\seealso{
+Other Internal VI functions: 
+\code{\link{update_hyperparams_doubletree}()}
+}
 \concept{Internal VI functions}

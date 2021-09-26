@@ -58,7 +58,7 @@
 #' @param levels a list of two elements (for tree1 and tree2);
 #' For each element, a numeric vector of integers from `1` to `Fg1` for the first tree
 #' (or `Fg2` for the second tree), indicating for each node which set of hyperparameters
-#' to use. The levels are pre-specfied, not estimated. We recommend at least
+#' to use. The levels are pre-specified, not estimated. We recommend at least
 #' five nodes in any level for learning the slab variance parameters.
 #' @param vi_params the list of variational parameters.
 #' @param hyperparams the list of hyperparameters
@@ -268,6 +268,7 @@ initialize_nlcm_doubletree <- function(Y,A,
                                  h=h_pau[[1]],SIMPLIFY=FALSE)
     hyperparams$tau_1 <- sapply(1:Fg1,function(l)
       mean(unlist(mu_gamma_sq_over_h[levels[[1]]==l])))
+    hyperparams$tau_1[hyperparams$tau_1 ==0] <- 0.01
   } else {
     check <- is.numeric(hyperparams$tau_1) &&
       length(hyperparams$tau_1)==Fg1
@@ -284,6 +285,7 @@ initialize_nlcm_doubletree <- function(Y,A,
                                  h=h_pau[[2]],SIMPLIFY=FALSE)
     hyperparams$tau_2 <- sapply(1:Fg2,function(l)
       mean(unlist(mu_alpha_sq_over_h[levels[[2]]==l])))
+    hyperparams$tau_2[hyperparams$tau_2 ==0] <- 0.01
   }else{
     check <- is.numeric(hyperparams$tau_2) &&
       length(hyperparams$tau_2) == Fg2
@@ -466,11 +468,11 @@ initialize_nlcm_doubletree <- function(Y,A,
     }
     if (scenario!="a"){
       tmp_indicators[is.na(v_units[[1]])]  <-
-        sample(1:pL1,size=length(is.na(v_units[[1]])),replace=TRUE,prob=obs_cts/sum(obs_cts))
+        sample(1:pL1,size=sum(is.na(v_units[[1]])),replace=TRUE,prob=obs_cts/sum(obs_cts))
     }
     vi_params$emat <- unMAP(tmp_indicators) # this is for all observation; ignore the ones with observed CODs.
     if (scenario!="a"){
-      vi_params$emat[is.na(v_units[[1]]),] <- obs_cts/sum(obs_cts) # non-zero entries.
+      vi_params$emat[is.na(v_units[[1]]),] <- matrix(obs_cts/sum(obs_cts),nrow=sum(is.na(v_units[[1]])),ncol=pL1,byrow=TRUE) # non-zero entries.
     }
   } # NB: need to selectively ignore the ones with observed COD.
 
@@ -561,8 +563,6 @@ initialize_nlcm_doubletree <- function(Y,A,
 
   # Initialize the variational parameters - the variances for the alpha parameters:
   # This is related to the question of how are they factorized - induced factorization.
-
-  # sapply(1:p2,function(i)sum(vi_params$sigma_alpha[[i]]-xx[[i]]))
 
   if (is.null(vi_params[["sigma_alpha"]])){ # check step 1e in Appendix:
     vi_params$sigma_alpha <- array(NA,c(p2,pL1,K-1))

@@ -43,6 +43,6 @@ Named("E_eta_sq")=E_eta_sq);
 \description{
 Get all moments that need updating when iterating over internal and leaf nodes;
 for both trees. When updating a node u, all the moments
-of the descedant nodes will be changed. A recalculation of the moments are necessary
+of the descendant nodes will be changed. A recalculation of the moments are necessary
 when moving on to another node.
 }

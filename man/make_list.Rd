@@ -14,7 +14,7 @@ make_list(...)
 a list as described above
 }
 \description{
-Roger Peng's listlabeling challenge from
+Roger Peng's list labeling challenge from
 \url{http://simplystatistics.tumblr.com/post/11988685443/computing-on-the-language}.
 Code copied from \url{https://gist.github.com/ajdamico/1329117/0134148987859856fcecbe4446cfd37e500e4272}
 }

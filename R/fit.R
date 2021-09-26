@@ -19,7 +19,6 @@
 #'
 #' @importFrom graphics barplot image abline
 #' @family internal VI functions
-#' @export
 fit_nlcm_doubletree <- function(dsgn,
                           vi_params_init,
                           hyperparams_init,
@@ -112,15 +111,16 @@ fit_nlcm_doubletree <- function(dsgn,
                                     quiet      = quiet,
                                     args = c(dsgn,vi_params,hyperparams,hyper_fixed))
     ELBO_track[i] <- hyperparams$ELBO
-    line_track[[i+1]] <- hyperparams$line_vec
+    # line_track[[i+1]] <- hyperparams$line_vec
 
     # print progress:
     if (i %% print_freq ==0){
       #if(ELBO_track[i] - ELBO_track[i-1]<0){
       if (!quiet){
-        cat("|--- Iteration", i, "; >>> epsilon = ", ELBO_track[i] - ELBO_track[i-1], "<<<<; ELBO = ", ELBO_track[i],"\n")
-        cat("|", i, "; line_vec_delta = \n")
-        print(line_track[[i+1]]-line_track[[i]])
+        cat("|--- Iteration", i, "; >>> epsilon = ", ELBO_track[i] - ELBO_track[i-1], "<<<; ELBO = ", ELBO_track[i],"\n")
+        # cat("|", i, "; line_vec_delta = \n")
+        # print(line_track[[i+1]]-line_track[[i]])
+        if (i>3 && ELBO_track[i] - ELBO_track[i-1]<0){break}
         cat("> empirical class probabilities: ", round(colMeans(vi_params$rmat),4),"\n")
         cat("> node_select: ",which(vi_params$prob1>0.5),"\n")
       }

@@ -35,16 +35,13 @@ belong to K classes; N by K; each row sums to 1}
 
 \item{emat}{a matrix of variational probability for all observations
 belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
-for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+for rows with observed leaf nodes in tree1, we just have an one-hot represention
 of that cause.}
 
 \item{h_pau}{a numeric vector of length p indicating the branch length
 between a node and its parent}
 
 \item{leaf_desc}{a vector of leaf descendants nested under node \code{u}}
-
-\item{subject_ids_nonmissing}{the ids of subjects in the leaf descendants of node u;
-a list of length J, each is a list of subjects nested under u AND have complete info.}
 }
 \value{
 a list

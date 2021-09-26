@@ -294,7 +294,7 @@ approx_sb <- function(x){
 #' Takes any number of R objects as arguments and returns a list whose names are
 #' derived from the names of the R objects.
 #'
-#' Roger Peng's listlabeling challenge from
+#' Roger Peng's list labeling challenge from
 #' <http://simplystatistics.tumblr.com/post/11988685443/computing-on-the-language>.
 #' Code copied from <https://gist.github.com/ajdamico/1329117/0134148987859856fcecbe4446cfd37e500e4272>
 #'
@@ -388,8 +388,9 @@ tsb <- function(u){
 #' @examples
 #'
 #' myrdirich(10,c(1,1,1))
-#' @export
 #'
+#' @importFrom stats rgamma
+#' @export
 myrdirich <- function(n,v){
   res <- matrix(NA,nrow=n,ncol=length(v))
   for (j in 1:length(v)){
@@ -421,7 +422,7 @@ myrdirich <- function(n,v){
 #' @export
 #'
 get_topk_COD <- function(probs,s){
-  which.k <- function(x, k){which(x == sort(x, dec = TRUE)[k])}
+  which.k <- function(x, k){which(x == sort(x, decreasing = TRUE)[k])}
   v <- ncol(probs)
   res <- data.frame((1:v)[apply(probs, 1, which.k, 1)])
   if (s>1){
@@ -458,20 +459,74 @@ acc_topk <- function(pred_topk,truth){
   res
 }
 
-
-
 #' heatmap
 #'
 #' @param mat a matrix
 #'
 #' @return image
 #'
+#' @importFrom stats heatmap
 #' @export
 myhm <- function(mat){
   heatmap(mat,Rowv=NA,Colv=NA)
+}
+
+#' sum over signed numbers, with some logsumexp applied to positive and negative
+#' values separately
+#'
+#' @param logabsv a vector; positive or negative; log of abs(v)
+#' @param sign sign of v, a vector; +1 or -1.
+#' @return image
+#'
+#' @examples
+#' set.seed(123)
+#' x <- rnorm(n = 100, mean = 1000, sd = 10)
+#' comp <- c(log(sum(exp(x))),signlogsumexp(x,rep(1,length(x)))$res,logsumexp(x))
+#' print(comp)
+#'
+#' sign_indicators <- c(rep(1,length(x)-50),rep(-1,length(x)-50))
+#' comp2 <- c(log(sum(sign_indicators*exp(x))),signlogsumexp(x,sign_indicators)$res)
+#' print(comp2)
+#'
+#' x = c(.5,-.4,-.1)
+#' sum(x) # not zero
+#'
+#' signlogsumexp(c(log(abs(x))),sign(x)) # not zero, but much closer to zero.
+#'
+#' @importFrom matrixStats logSumExp
+#'
+#' @export
+signlogsumexp <- function(logabsv,sign){
+  res1 <- NULL
+  res2 <- NULL
+  if (sum(sign>0)>0){
+    logabsv_p <- logabsv[sign>0]
+    res1 <- logSumExp(logabsv_p)
   }
+  if (sum(sign<0)>0){
+    logabsv_m <- logabsv[sign<0]
+    res2 <- logSumExp(logabsv_m)
+  }
+
+  if (is.null(res1)){
+    res      <- logSumExp(logabsv)
+    res_sign <- -1
+    return(make_list(res,res_sign))
+  }
+  if (is.null(res2)){
+    res      <- logSumExp(logabsv)
+    res_sign <- 1
+    return(make_list(res,res_sign))
+  }
+  res_sign <- (res1<res2)*(-2)+1
+  a <- max(res1,res2)
+  b <- min(res1,res2)
+  res <- b+log(expm1(a-b))
+  return(make_list(res,res_sign))
+}
+
 
 ## 2. CSMF accuracy
 ## 3. RMSE
 ## 4. aRI for assessing cluster estimation accuracy
-## 5.
+

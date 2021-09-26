@@ -208,6 +208,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// update_alpha_subid_doubletree0
+List update_alpha_subid_doubletree0(int u, int v1, arma::cube g_phi, double tau_2_t_u, arma::cube E_eta, arma::mat E_xi_u, arma::mat X, arma::mat rmat, arma::mat emat, arma::vec h_pau, arma::vec levels, arma::vec subject_ids, arma::vec v2_lookup);
+RcppExport SEXP _doubletree_update_alpha_subid_doubletree0(SEXP uSEXP, SEXP v1SEXP, SEXP g_phiSEXP, SEXP tau_2_t_uSEXP, SEXP E_etaSEXP, SEXP E_xi_uSEXP, SEXP XSEXP, SEXP rmatSEXP, SEXP ematSEXP, SEXP h_pauSEXP, SEXP levelsSEXP, SEXP subject_idsSEXP, SEXP v2_lookupSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type u(uSEXP);
+    Rcpp::traits::input_parameter< int >::type v1(v1SEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type g_phi(g_phiSEXP);
+    Rcpp::traits::input_parameter< double >::type tau_2_t_u(tau_2_t_uSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type E_eta(E_etaSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type E_xi_u(E_xi_uSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type rmat(rmatSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type emat(ematSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type h_pau(h_pauSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type levels(levelsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type subject_ids(subject_idsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type v2_lookup(v2_lookupSEXP);
+    rcpp_result_gen = Rcpp::wrap(update_alpha_subid_doubletree0(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_line1_2_15_doubletree
 List get_line1_2_15_doubletree(arma::cube F, arma::mat digamma_emat, arma::mat rmat, arma::mat emat, arma::vec v1_lookup_NA_replaced, arma::vec v2_lookup);
 RcppExport SEXP _doubletree_get_line1_2_15_doubletree(SEXP FSEXP, SEXP digamma_ematSEXP, SEXP rmatSEXP, SEXP ematSEXP, SEXP v1_lookup_NA_replacedSEXP, SEXP v2_lookupSEXP) {
@@ -239,6 +262,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_doubletree_update_rmat_with_F_doubletree", (DL_FUNC) &_doubletree_update_rmat_with_F_doubletree, 2},
     {"_doubletree_update_gamma_subid_doubletree", (DL_FUNC) &_doubletree_update_gamma_subid_doubletree, 10},
     {"_doubletree_update_alpha_subid_doubletree", (DL_FUNC) &_doubletree_update_alpha_subid_doubletree, 13},
+    {"_doubletree_update_alpha_subid_doubletree0", (DL_FUNC) &_doubletree_update_alpha_subid_doubletree0, 13},
     {"_doubletree_get_line1_2_15_doubletree", (DL_FUNC) &_doubletree_get_line1_2_15_doubletree, 6},
     {NULL, NULL, 0}
 };

@@ -7,7 +7,7 @@
 #' to deal with
 #' \describe{
 #' \item{Scenario a}{No missing leaf labels in tree1 or tree2, for all observations;
-#' So this is reduced to a nested latent class model estimation prorblem with
+#' So this is reduced to a nested latent class model estimation problem with
 #' parameter shrinkage according to the two trees.}
 #' \item{Scenario b}{All missing tree1 leaf label occurred for in a single leaf node in tree2 (say v2):}
 #' \itemize{

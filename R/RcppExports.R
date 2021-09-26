@@ -14,6 +14,15 @@ xlogx <- function(x) {
     .Call('_doubletree_xlogx', PACKAGE = 'doubletree', x)
 }
 
+#' logsumexp
+#'
+#' utility function
+#'
+#' @param logv_arma a vector of numbers
+#'
+#' @useDynLib doubletree
+#' @importFrom Rcpp sourceCpp
+#' @export
 logsumexp <- function(logv_arma) {
     .Call('_doubletree_logsumexp', PACKAGE = 'doubletree', logv_arma)
 }
@@ -39,7 +48,7 @@ mtv <- function(mat, v) {
 #'
 #' Get all moments that need updating when iterating over internal and leaf nodes;
 #' for both trees. When updating a node u, all the moments
-#' of the descedant nodes will be changed. A recalculation of the moments are necessary
+#' of the descendant nodes will be changed. A recalculation of the moments are necessary
 #' when moving on to another node.
 #'
 #' @param prob1,prob2 variational probabilities; `prob1` is for \code{s*_u} - length `p1`;
@@ -78,7 +87,7 @@ get_moments_cpp_doubletree <- function(prob1, prob2, mu_gamma, sigma_gamma, mu_a
 #'
 #' Get all moments that need updating when iterating over internal and leaf nodes;
 #' for both trees. When updating a node u, all the moments
-#' of the descedant nodes will be changed. A recalculation of the moments are necessary
+#' of the descendant nodes will be changed. A recalculation of the moments are necessary
 #' when moving on to another node.
 #'
 #' @param prob1 variational probabilities; `prob1` is for \code{s*_u} - length `p1`.
@@ -110,7 +119,7 @@ get_moments_cpp_eco_gamma_doubletree <- function(prob1, mu_gamma, sigma_gamma, E
 #'
 #' Get all moments that need updating when iterating over internal and leaf nodes;
 #' for both trees. When updating a node u, all the moments
-#' of the descedant nodes will be changed. A recalculation of the moments are necessary
+#' of the descendant nodes will be changed. A recalculation of the moments are necessary
 #' when moving on to another node.
 #'
 #' @param prob2
@@ -217,12 +226,10 @@ update_rmat_with_F_doubletree <- function(curr_F, emat) {
 #' belong to K classes; N by K; each row sums to 1
 #' @param emat a matrix of variational probability for all observations
 #' belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
-#' for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+#' for rows with observed leaf nodes in tree1, we just have an one-hot represention
 #' of that cause.
 #' @param h_pau a numeric vector of length p indicating the branch length
 #' between a node and its parent
-#' @param subject_ids_nonmissing the ids of subjects in the leaf descendants of node u;
-#' a list of length J, each is a list of subjects nested under u AND have complete info.
 #' @param leaf_desc a vector of leaf descendants nested under node `u`
 #'
 #' @return  a list
@@ -243,7 +250,7 @@ update_gamma_subid_doubletree <- function(u, g_psi, tau_1_t_u, E_beta, E_zeta_u,
 #'
 #' @param u node id; internal or leaf node in tree1
 #' @param v1 leaf node id in tree1.
-#' @param g_psi,g_phi g of local variational parameters
+#' @param g_phi g of local variational parameters
 #' @param tau_2_t_u variational Gaussian variances for gamma
 #' @param E_eta,E_xi_u moment updates produced by \code{\link{get_moments_cpp}};
 #' \code{E_xi_u} is directly calculated
@@ -252,7 +259,7 @@ update_gamma_subid_doubletree <- function(u, g_psi, tau_1_t_u, E_beta, E_zeta_u,
 #' belong to K classes; N by K; each row sums to 1
 #' @param emat a matrix of variational probability for all observations
 #' belonging to pL1 leaf nodes; N by pL1; each row sums to 1. Importantly,
-#' for rows with obsered leaf nodes in tree1, we just have an one-hot represention
+#' for rows with obsered leaf nodes in tree1, we just have an one-hot representation.
 #' of that cause.
 #' @param h_pau a numeric vector of length p indicating the branch length
 #' between a node and its parent; for tree2
@@ -273,6 +280,10 @@ update_gamma_subid_doubletree <- function(u, g_psi, tau_1_t_u, E_beta, E_zeta_u,
 #' @export
 update_alpha_subid_doubletree <- function(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup) {
     .Call('_doubletree_update_alpha_subid_doubletree', PACKAGE = 'doubletree', u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup)
+}
+
+update_alpha_subid_doubletree0 <- function(u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup) {
+    .Call('_doubletree_update_alpha_subid_doubletree0', PACKAGE = 'doubletree', u, v1, g_phi, tau_2_t_u, E_eta, E_xi_u, X, rmat, emat, h_pau, levels, subject_ids, v2_lookup)
 }
 
 #' calculate line 1, 2, and 15 of ELBO*

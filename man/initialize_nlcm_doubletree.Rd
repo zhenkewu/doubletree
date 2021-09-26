@@ -59,7 +59,7 @@ The root node has no parent, we set the edge length toward root node to \code{1}
 \item{levels}{a list of two elements (for tree1 and tree2);
 For each element, a numeric vector of integers from \code{1} to \code{Fg1} for the first tree
 (or \code{Fg2} for the second tree), indicating for each node which set of hyperparameters
-to use. The levels are pre-specfied, not estimated. We recommend at least
+to use. The levels are pre-specified, not estimated. We recommend at least
 five nodes in any level for learning the slab variance parameters.}
 
 \item{vi_params}{the list of variational parameters.}

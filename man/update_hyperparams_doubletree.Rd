@@ -2,8 +2,7 @@
 % Please edit documentation in R/update.R
 \name{update_hyperparams_doubletree}
 \alias{update_hyperparams_doubletree}
-\title{update hyperparameters in the nested latent class model with observations organized in
-double trees}
+\title{update hyperparameters}
 \usage{
 update_hyperparams_doubletree(
   h_pau,
@@ -173,3 +172,8 @@ along with a new ELBO value.
 \description{
 NB: argument redundancy may exist
 }
+\seealso{
+Other Internal VI functions: 
+\code{\link{update_vi_params_doubletree}()}
+}
+\concept{Internal VI functions}

@@ -95,7 +95,7 @@ if(getRversion() >= "2.15.1") utils::globalVariables(c("i"))
 #'    }
 #'
 #' @example
-#' /inst/example/example_simulate_doubletree.R
+#' /inst/example/K2_small_simulation_example.R
 #'
 #' @useDynLib doubletree
 #' @export
