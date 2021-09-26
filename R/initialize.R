@@ -269,6 +269,7 @@ initialize_nlcm_doubletree <- function(Y,A,
     hyperparams$tau_1 <- sapply(1:Fg1,function(l)
       mean(unlist(mu_gamma_sq_over_h[levels[[1]]==l])))
     hyperparams$tau_1[hyperparams$tau_1 ==0] <- 0.01
+    # currently set to nonzeros, because if zeros, will cause issues in gamma update in the 1/tau_1_t part.
   } else {
     check <- is.numeric(hyperparams$tau_1) &&
       length(hyperparams$tau_1)==Fg1
@@ -286,6 +287,7 @@ initialize_nlcm_doubletree <- function(Y,A,
     hyperparams$tau_2 <- sapply(1:Fg2,function(l)
       mean(unlist(mu_alpha_sq_over_h[levels[[2]]==l])))
     hyperparams$tau_2[hyperparams$tau_2 ==0] <- 0.01
+    # currently set to nonzeros, because if zeros, will cause issues in alpha update in the 1/tau_2_t part.
   }else{
     check <- is.numeric(hyperparams$tau_2) &&
       length(hyperparams$tau_2) == Fg2
