@@ -69,8 +69,8 @@ Examples
     
     
 * the hierarchy for 35 causes and the hierarchy for 6 domains is shown below. The numbers in the cells indicate the number of physician-coded cause-of-death (COD) in a particular site ("domain"). In the most common situation this package is designed for, we would not observe the membership of some deaths to the cells. For example, in `AP` site, we may not be able to see the tabulation by the CODs (by row), but just a total number of deaths in `AP` (the column sum for AP in the table shown here). `doubletree` will provide an estimate of 
-        * the population cause-specific mortality fraction in `AP` (a vector of length 35 that sums to 1);
-        * individual-specific posterior probability of CODs (a vector of length 35 that sums to 1), based on which we may obtain, e.g., _maximum a posteriori_ COD for each death given the survey responses.
+    1. the population cause-specific mortality fraction in `AP` (a vector of length 35 that sums to 1);
+    2. individual-specific posterior probability of CODs (a vector of length 35 that sums to 1), based on which we may obtain, e.g., _maximum a posteriori_ COD for each death given the survey responses.
     
     ![](inst/example_figure/double_tree_deathcounts_otherNCD.png).
     
