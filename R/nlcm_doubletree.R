@@ -84,8 +84,6 @@ if(getRversion() >= "2.15.1") utils::globalVariables(c("i"))
 #' `u` will then be transformed back to the probability scale.}
 #' }
 #'
-#' @param allow_continue logical, `TRUE` to save results so can continue running the VI
-#' updates with the last iteration from the old results.
 #'
 #' @return a list also of class "nlcm_doubletree"; NB: need to create a simulated example that uses this function!
 #'
@@ -126,8 +124,7 @@ nlcm_doubletree <- function(Y,leaf_ids,mytrees,# may have unordered nodes.
                                                     tau2_lims = c(0.5,1.5),
                                                     u_sd_frac = 0.2, # this is for logit of prob1.
                                                     psi_sd_frac = 0.2,
-                                                    phi_sd_frac = 0.2),
-                            allow_continue = FALSE
+                                                    phi_sd_frac = 0.2)
 ){
   # logs
   log_dir <- sub("/$", "", log_dir)
@@ -209,12 +206,19 @@ nlcm_doubletree <- function(Y,leaf_ids,mytrees,# may have unordered nodes.
     mod_restarts <- NULL
   }
 
-  #
-  # The following needs edits as they either relate to posterior summaries or fit ad hoc models.
-  # please see the lotR function for copying additional information.
+  # posterior summaries for collapsed (both trees) and individual leaf estimates:
+  tmp <- compute_params_dt(mod,dsgn,ci_level)
+  prob_est <- tmp$prob_est
+  prob_est_indiv <- tmp$prob_est_indiv
+  pi_list <- tmp$pi_list
+  rm(tmp)
+
+  # can add a section that fits models based on the groups based on the outputs above.
+  ad_hoc_est <- NULL
 
   mytrees <- dsgn$mytrees # <--- check if this is actually needed - I think lotR likely reordered trees which must be documented before visualization.
-  res <- make_list(mod,mod_restarts,mytrees,dsgn)
+  res <- make_list(mod,mod_restarts,mytrees,dsgn,
+                   prob_est,prob_est_indiv,pi_list,ad_hoc_est)
 
   class(res) <- c("nlcm_doubletree","list")
   res

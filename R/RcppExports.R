@@ -311,3 +311,46 @@ get_line1_2_15_doubletree <- function(F, digamma_emat, rmat, emat, v1_lookup_NA_
     .Call('_doubletree_get_line1_2_15_doubletree', PACKAGE = 'doubletree', F, digamma_emat, rmat, emat, v1_lookup_NA_replaced, v2_lookup)
 }
 
+#' Summarize the posterior mean, sd, and confidence interval (lower
+#' and upper endpoints)
+#'
+#' applicable to grouped or individual estimates by proper choices of `prob1` and
+#' `prob2`; one or zeros give grouped estimates; probabilities give individual estimates
+#'
+#' @param prob1,prob2 variational probabilities; `prob1` is for \code{s*_u} - length `p1`;
+#' `prob2` is for `s_cu` - a matrix `pL1` by `p2`; in R, a list of pL1 length - each element being of length `p2`.
+#' @param mu_gamma variational Gaussian means (for \code{s*_u=1} component) for J*K
+#' logit(class-specific response probabilities); (J,K,p1) array; In R, we used a list of p1 (J,K) matrices
+#' @param sigma_gamma variational Gaussian variances (for \code{s*_u=1} component)
+#' for J*K logit(class-specific response probabilities); (J,K,p1) array; in R, we used a list o f p1 (J,K) matrices
+#' @param mu_alpha variational Gaussian mean vectors (for \code{s_cu=1} component) -
+#' this is a pL1 by K-1 by p2 array; in R, we used a list of p2 matrices (each of dimension pL1 by K-1)
+#' @param sigma_alpha variational Gaussian variances (for \code{s_cu=1} component)
+#' - this is an array of dimension (pL1, K-1, p2); in R, we used a list of p2 matrices,
+#' each of dimension pL1 by K-1.
+#' @param anc1,anc2 `anc1` is a list of pL1 vectors, each vector has the node ids of the ancestors in tree1;
+#' lengths may differ. The ancestors include the node concerned; similarly for `anc2`
+#' @param cardanc1,cardanc2 `cardanc1` is a numeric vector of length pL1; integers. The number
+#' of ancestors for each leaf node in tree1; similarly for `cardanc2`.
+#' @param z double z=\code{ ci_level+(1-ci_level)/2}
+#'
+#' @return a List
+#'
+#' \describe{
+#' List::create(Named("beta_est")=beta_est,
+#'              Named("beta_sd")=beta_sd,
+#'              Named("beta_cil")=beta_cil,
+#'              Named("beta_ciu")=beta_ciu,
+#'              Named("eta_est")=eta_est,
+#'              Named("eta_sd")=eta_sd,
+#'              Named("eta_cil")=eta_cil,
+#'              Named("eta_ciu")=eta_ciu);
+#'}
+#'
+#' @useDynLib doubletree
+#' @importFrom Rcpp sourceCpp
+#' @export
+get_est_cpp_dt <- function(prob1, prob2, mu_gamma, sigma_gamma, mu_alpha, sigma_alpha, anc1, anc2, cardanc1, cardanc2, z) {
+    .Call('_doubletree_get_est_cpp_dt', PACKAGE = 'doubletree', prob1, prob2, mu_gamma, sigma_gamma, mu_alpha, sigma_alpha, anc1, anc2, cardanc1, cardanc2, z)
+}
+

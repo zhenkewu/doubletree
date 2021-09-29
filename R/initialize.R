@@ -79,7 +79,6 @@
 #' nested latent class model with double tree shrinkage. `target_id` and `scenario` are
 #' both added (use `?doubletree` to see meanings of scenarios).
 #'
-#' @export
 initialize_nlcm_doubletree <- function(Y,A,
                                        leaf_ids_units,
                                        leaf_ids,

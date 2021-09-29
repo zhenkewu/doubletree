@@ -29,8 +29,7 @@ nlcm_doubletree(
   random_init = FALSE,
   random_init_vals = list(mu_gamma_sd_frac = 0.2, mu_alpha_sd_frac = 0.2, tau1_lims =
     c(0.5, 1.5), tau2_lims = c(0.5, 1.5), u_sd_frac = 0.2, psi_sd_frac = 0.2, phi_sd_frac
-    = 0.2),
-  allow_continue = FALSE
+    = 0.2)
 )
 }
 \arguments{
@@ -159,9 +158,6 @@ added to \code{u} with standard deviation equal to u_sd_frac multiplied by the a
 initial value for \code{u} either supplied in \code{vi_params_init} or guessed using \code{moretrees_init_logistic()}.
 \code{u} will then be transformed back to the probability scale.}
 }}
-
-\item{allow_continue}{logical, \code{TRUE} to save results so can continue running the VI
-updates with the last iteration from the old results.}
 }
 \value{
 a list also of class "nlcm_doubletree"; NB: need to create a simulated example that uses this function!

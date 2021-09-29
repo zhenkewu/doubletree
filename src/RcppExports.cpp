@@ -247,6 +247,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_est_cpp_dt
+List get_est_cpp_dt(arma::vec prob1, arma::mat prob2, arma::cube mu_gamma, arma::cube sigma_gamma, arma::cube mu_alpha, arma::cube sigma_alpha, List anc1, List anc2, arma::vec cardanc1, arma::vec cardanc2, double z);
+RcppExport SEXP _doubletree_get_est_cpp_dt(SEXP prob1SEXP, SEXP prob2SEXP, SEXP mu_gammaSEXP, SEXP sigma_gammaSEXP, SEXP mu_alphaSEXP, SEXP sigma_alphaSEXP, SEXP anc1SEXP, SEXP anc2SEXP, SEXP cardanc1SEXP, SEXP cardanc2SEXP, SEXP zSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type prob1(prob1SEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type prob2(prob2SEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type mu_gamma(mu_gammaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type sigma_gamma(sigma_gammaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type mu_alpha(mu_alphaSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type sigma_alpha(sigma_alphaSEXP);
+    Rcpp::traits::input_parameter< List >::type anc1(anc1SEXP);
+    Rcpp::traits::input_parameter< List >::type anc2(anc2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type cardanc1(cardanc1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type cardanc2(cardanc2SEXP);
+    Rcpp::traits::input_parameter< double >::type z(zSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_est_cpp_dt(prob1, prob2, mu_gamma, sigma_gamma, mu_alpha, sigma_alpha, anc1, anc2, cardanc1, cardanc2, z));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_doubletree_xlogx", (DL_FUNC) &_doubletree_xlogx, 1},
@@ -264,6 +285,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_doubletree_update_alpha_subid_doubletree", (DL_FUNC) &_doubletree_update_alpha_subid_doubletree, 13},
     {"_doubletree_update_alpha_subid_doubletree0", (DL_FUNC) &_doubletree_update_alpha_subid_doubletree0, 13},
     {"_doubletree_get_line1_2_15_doubletree", (DL_FUNC) &_doubletree_get_line1_2_15_doubletree, 6},
+    {"_doubletree_get_est_cpp_dt", (DL_FUNC) &_doubletree_get_est_cpp_dt, 11},
     {NULL, NULL, 0}
 };
 

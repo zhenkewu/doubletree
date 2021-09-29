@@ -932,3 +932,118 @@ List get_line1_2_15_doubletree(arma::cube F,//N by pL1 by K,
                       Named("res2")=res2,
                       Named("res3")=res3);
 }
+
+
+
+
+//' Summarize the posterior mean, sd, and confidence interval (lower
+//' and upper endpoints)
+//'
+//' applicable to grouped or individual estimates by proper choices of `prob1` and
+//' `prob2`; one or zeros give grouped estimates; probabilities give individual estimates
+//'
+//' @param prob1,prob2 variational probabilities; `prob1` is for \code{s*_u} - length `p1`;
+//' `prob2` is for `s_cu` - a matrix `pL1` by `p2`; in R, a list of pL1 length - each element being of length `p2`.
+//' @param mu_gamma variational Gaussian means (for \code{s*_u=1} component) for J*K
+//' logit(class-specific response probabilities); (J,K,p1) array; In R, we used a list of p1 (J,K) matrices
+//' @param sigma_gamma variational Gaussian variances (for \code{s*_u=1} component)
+//' for J*K logit(class-specific response probabilities); (J,K,p1) array; in R, we used a list o f p1 (J,K) matrices
+//' @param mu_alpha variational Gaussian mean vectors (for \code{s_cu=1} component) -
+//' this is a pL1 by K-1 by p2 array; in R, we used a list of p2 matrices (each of dimension pL1 by K-1)
+//' @param sigma_alpha variational Gaussian variances (for \code{s_cu=1} component)
+//' - this is an array of dimension (pL1, K-1, p2); in R, we used a list of p2 matrices,
+//' each of dimension pL1 by K-1.
+//' @param anc1,anc2 `anc1` is a list of pL1 vectors, each vector has the node ids of the ancestors in tree1;
+//' lengths may differ. The ancestors include the node concerned; similarly for `anc2`
+//' @param cardanc1,cardanc2 `cardanc1` is a numeric vector of length pL1; integers. The number
+//' of ancestors for each leaf node in tree1; similarly for `cardanc2`.
+//' @param z double z=\code{ ci_level+(1-ci_level)/2}
+//'
+//' @return a List
+//'
+//' \describe{
+//' List::create(Named("beta_est")=beta_est,
+//'              Named("beta_sd")=beta_sd,
+//'              Named("beta_cil")=beta_cil,
+//'              Named("beta_ciu")=beta_ciu,
+//'              Named("eta_est")=eta_est,
+//'              Named("eta_sd")=eta_sd,
+//'              Named("eta_cil")=eta_cil,
+//'              Named("eta_ciu")=eta_ciu);
+//'}
+//'
+//' @useDynLib doubletree
+//' @importFrom Rcpp sourceCpp
+//' @export
+// [[Rcpp::export]]
+List get_est_cpp_dt(arma::vec prob1,// p1
+                    arma::mat prob2,// pL1 by p2
+                    arma::cube mu_gamma,//J by K by p1
+                    arma::cube sigma_gamma,//J by K by p1
+                    arma::cube mu_alpha, // pL1 by K-1 by p2
+                    arma::cube sigma_alpha,//  pL1 by K-1 by p2
+                    List anc1, // length pL1; each element is a vector.
+                    List anc2, // length pL2; each element is a vector.
+                    arma::vec cardanc1, // length pL1; integers
+                    arma::vec cardanc2, // length pL2; integers
+                    double z
+){
+  int pL1 = cardanc1.size();
+  int pL2 = cardanc2.size();
+  int J = mu_gamma.n_rows;
+  int K = mu_gamma.n_cols;
+  int p1 = mu_gamma.n_slices;
+  int p2 = mu_alpha.n_slices;
+
+  arma::cube beta_est(J,K,pL1);beta_est.zeros();// leaf level
+  arma::cube beta_sd(J,K,pL1);beta_sd.zeros(); // leaf level
+  arma::cube beta_cil(J,K,pL1);beta_cil.zeros(); // leaf level
+  arma::cube beta_ciu(J,K,pL1);beta_ciu.zeros(); // leaf level
+
+  arma::cube  eta_est(pL1,K-1,pL2);eta_est.zeros(); // leaf level
+  arma::cube  eta_sd(pL1,K-1,pL2);eta_sd.zeros();// leaf level
+  arma::cube  eta_cil(pL1,K-1,pL2);eta_cil.zeros();// leaf level
+  arma::cube  eta_ciu(pL1,K-1,pL2);eta_ciu.zeros();// leaf level
+
+  // follow tree1:
+  int n_anc=0;
+  int uu=0;
+  for (int v=0;v<pL1;v++){
+    arma::vec curr_anc = anc1[v];
+    n_anc = (int) cardanc1(v);
+    for (int u=0;u<n_anc;u++){
+      uu =  (int) curr_anc(u)-1;
+      beta_est.slice(v)    += prob1(uu)*mu_gamma.slice(uu);
+      beta_sd.slice(v) += prob1(uu)*(sigma_gamma.slice(uu)+(1.0-prob1(uu))*pow(mu_gamma.slice(uu),2.0)); //not yet.
+    }
+    beta_sd.slice(v)   += pow(beta_sd.slice(v),0.5);
+    beta_cil.slice(v)  = beta_est.slice(v)-z*beta_sd.slice(v);
+    beta_ciu.slice(v)  = beta_est.slice(v)+z*beta_sd.slice(v);
+  }
+
+  // follow tree2:
+  for (int v=0;v<pL2;v++){
+    arma::vec curr_anc = anc2[v];
+    n_anc = (int) cardanc2(v);
+    for (int u=0;u<n_anc;u++){
+      uu =  (int) curr_anc(u)-1;
+      eta_est.slice(v)        += mtv(mu_alpha.slice(uu),prob2.col(uu));
+      eta_sd.slice(v)     += mtv(sigma_alpha.slice(uu)+
+        mtv(pow(mu_alpha.slice(uu),2.0),(1.0-prob2.col(uu))),
+        prob2.col(uu));
+    }
+    eta_sd.slice(v)        += pow(eta_sd.slice(v),0.5);
+    eta_cil.slice(v) = eta_est.slice(v)-z*eta_sd.slice(v);
+    eta_ciu.slice(v) = eta_est.slice(v)+z*eta_sd.slice(v);
+  }
+  // return results:
+  return List::create(Named("beta_est")=beta_est,
+                      Named("beta_sd")=beta_sd,
+                      Named("beta_cil")=beta_cil,
+                      Named("beta_ciu")=beta_ciu,
+                      Named("eta_est")=eta_est,
+                      Named("eta_sd")=eta_sd,
+                      Named("eta_cil")=eta_cil,
+                      Named("eta_ciu")=eta_ciu
+  );
+}
