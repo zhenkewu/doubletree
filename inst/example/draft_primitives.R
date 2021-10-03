@@ -5,6 +5,7 @@ library(doubletree)
 library(MASS)
 library(poLCA)
 library(BayesLCA)
+library(lotR)
 
 data("example_data_doubletree")
 
@@ -68,6 +69,16 @@ working_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==1] <- NA
 working_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]]
 
 
+# get the design output; this is needed because the function reorders the data rows:
+dsgn0 <- design_doubletree(example_data_doubletree$Y,working_leaf_ids,
+                           working_mytrees)
+
+nrestarts <- 1 # the number of random initializations.
+
+doParallel::registerDoParallel(cores = nrestarts)
+log_dir <- tempdir()
+dir.create(log_dir)
+
 # Not run:------------------------------------------------
 mod0 <- nlcm_doubletree(
   example_data_doubletree$Y,
@@ -83,11 +94,13 @@ mod0 <- nlcm_doubletree(
   tol        = 1E-8,
   tol_hyper = 1E-4,
   max_iter = 40,
-  nrestarts = 1,
+  nrestarts = nrestarts,
   keep_restarts = TRUE,
   parallel = TRUE,
-  log_restarts = FALSE,
-  log_dir = ".",
+  log_restarts = TRUE, # set to true to print info into the log file; FALSE to print in console.
+  log_dir = log_dir,
+  # log_restarts = FALSE,
+  # log_dir = ".",
   vi_params_init = list(),
   hyperparams_init = list(),
   random_init = FALSE,
@@ -109,10 +122,7 @@ mod0 <- nlcm_doubletree(
     tau_update_levels = list(c(1,2),c(1,2)))
 )
 
-
-# get the design output; this is needed because the function reorders the data rows:
-dsgn0 <- design_doubletree(example_data_doubletree$Y,working_leaf_ids,
-                           working_mytrees)
+mod <- mod0
 
 # for each tree1 leaf, look at shrinkage structure across tree2:
 par(mfrow=c(ceiling(sqrt(pL1+1)),ceiling(sqrt(pL1+1))),
@@ -236,4 +246,23 @@ plot(mod$mod$ELBO_track,type="o",main="ELBO trajectory")
 # for (l in 2:17){
 #   plot(mod$mod$line_track[window,l],type="o",pch=l)
 # }
+
+#
+# plot differences in the response probabilities (upon optimal permutation):----
+#
+par(mfrow=c(ceiling(sqrt(pL1+1)),ceiling(sqrt(pL1+1))),
+    mar=c(1,1,3,1))
+for (v1 in 1:pL1){
+  A <- t(example_data_doubletree$truth$itemprob_list[[v1]])
+  B <- mod0$prob_est$theta_collapsed[,,v1]
+  permute_est <- opt_colpermB(A,B)
+  hist(B[,permute_est]-A,main=paste0("tree1 leaf ",v1,": theta diff (est-truth)"),xlim=c(-1,1),
+       breaks = "Scott")
+}
+
+
+
+
+
+
 

@@ -122,7 +122,10 @@ fit_nlcm_doubletree <- function(dsgn,
         # print(line_track[[i+1]]-line_track[[i]])
         if (i>3 && ELBO_track[i] - ELBO_track[i-1]<0){break}
         cat("> empirical class probabilities: ", round(colMeans(vi_params$rmat),4),"\n")
-        cat("> node_select: ",which(vi_params$prob1>0.5),"\n")
+        cat("> node_select tree1: ",which(vi_params$prob1>0.5),"\n")
+        cat("> node_select tree2 (by tree1 leaves): \n")
+        node_select2 <- (as.matrix(do.call("rbind",vi_params$prob2))>0.5)+0
+        print(node_select2)
       }
       if (plot_fig){
         barplot(vi_params$prob1)

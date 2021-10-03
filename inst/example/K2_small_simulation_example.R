@@ -67,6 +67,11 @@ working_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==1] <- NA
 # working_leaf_ids[[1]][example_data_doubletree$truth$true_leaf_ids[,2]==2] <- NA
 working_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]]
 
+nrestarts <- 3 # the number of random initializations.
+
+# doParallel::registerDoParallel(cores = nrestarts)
+# log_dir <- tempdir()
+# dir.create(log_dir)
 
 ## Not run:------------------------------------------------
 # mod <- nlcm_doubletree(
@@ -83,11 +88,13 @@ working_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]
 #   tol        = 1E-8,
 #   tol_hyper = 1E-4,
 #   max_iter = 1000,
-#   nrestarts = 1,
+#   nrestarts = nrestarts,
 #   keep_restarts = TRUE,
 #   parallel = TRUE,
-#   log_restarts = FALSE,
-#   log_dir = ".",
+#   # log_restarts = TRUE,
+#   # log_dir = log_dir,
+#   #log_restarts = FALSE,
+#   #log_dir = ".",
 #   vi_params_init = list(),
 #   hyperparams_init = list(),
 #   random_init = FALSE,
@@ -106,6 +113,8 @@ working_leaf_ids[[2]] <- leaves2[example_data_doubletree$truth$true_leaf_ids[,2]
 #     #s2_cu_zeroset = rep(list(2:p2),pL1), # force NO diffusion in non-roots tree2.
 #     s2_cu_zeroset = NULL,
 #     s2_cu_oneset = rep(list(1),pL1), # no force diffusion tree2.
+#     hyperparams_init = list(tau_1=1.5^2,
+#                             tau_2=1.5^2),
 #     tau_update_levels = list(c(1,2),c(1,2)))
 # )
 #

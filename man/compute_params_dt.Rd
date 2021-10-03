@@ -14,7 +14,7 @@ compute_params_dt(mod, dsgn, ci_level = 0.95)
 \item{ci_level}{credible interval level; default to \code{0.95}}
 }
 \value{
-a list with elements: \code{prob_est},\code{prob_est_indiv},\code{pi_est}
+a list with elements: \code{prob_est},\code{prob_est_indiv},\code{pi_list}
 }
 \description{
 This function is used in the wrapper function \code{\link[=nlcm_doubletree]{nlcm_doubletree()}}

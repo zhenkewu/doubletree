@@ -8,7 +8,6 @@
 #    very detailed.
 #######################################################################
 
-
 #' compute model summaries from the model outputs
 #'
 #' This function is used in the wrapper function [nlcm_doubletree()]
@@ -17,7 +16,7 @@
 #' @param dsgn output from [design_doubletree()]
 #' @param ci_level credible interval level; default to `0.95`
 #'
-#' @return a list with elements: `prob_est`,`prob_est_indiv`,`pi_est`
+#' @return a list with elements: `prob_est`,`prob_est_indiv`,`pi_list`
 #'
 #' @seealso [get_est_cpp_dt()]
 #' @importFrom stats qbeta
@@ -83,7 +82,7 @@ compute_params_dt <- function(mod,dsgn,ci_level=0.95){
   for (v1 in 1:pL1){
     grp[v1,] <- round(prob_est$eta_est[v1,,],6) # currently ad hoc.
   }
-  prob_est$grp <- apply(grp,1,function(x) as.integer(factor(x,levels=unique(x))))
+  prob_est$grp <- t(apply(grp,1,function(x) as.integer(factor(x,levels=unique(x)))))
   # this is likely better because it is not on probability scale, which
   # reflects true diffusion on the eta scale.
 
@@ -146,7 +145,7 @@ compute_params_dt <- function(mod,dsgn,ci_level=0.95){
 
   ## cross-leaf mixture estimation (e.g, cause-specific mortality fractions)---
   pi_list <- list()
-  pi_list$pi_est <- sweep(mod$vi_params$dirich_mat,MARGIN=1,
+  pi_list$pi_est <- sweep(mod$vi_params$dirich_mat,MARGIN=2,
                           colSums(mod$vi_params$dirich_mat),"/")
   pi_list$pi_cil <- apply(mod$vi_params$dirich_mat,2,function(x)
     qbeta(0.025,x,sum(x)-x))
@@ -228,6 +227,14 @@ summary.nlcm_doubletree <- function(object,
   est$n_obs    <- object$prob_est$n_obs
   est$group    <- lapply(object$prob_est$n_obs,function(mylist){1:length(mylist)})
 
+
+  # pi inference:
+  pi_inf <- mapply(function(pi_est,pi_cil,pi_ciu){res = cbind(pi_est,pi_cil,pi_ciu)},pi_est=split_along_dim(object$pi_list$pi_est,2),
+                   pi_cil=split_along_dim(object$pi_list$pi_cil,2),
+                   pi_ciu=split_along_dim(object$pi_list$pi_ciu,2),SIMPLIFY=FALSE)
+
+  names(pi_inf) <-  names(object$dsgn$leaf_ids_units[[2]])
+
   rslt <- list()
   if (compact){
     if (coeff_type == "nlcm_doubletree"){
@@ -266,6 +273,9 @@ summary.nlcm_doubletree <- function(object,
     rslt$lambda <- est$lambda_collapsed
     rslt$coeff_type <- coeff_type
     rslt$ci_level <- est$ci_level
+
+    rslt$pi_inf <- pi_inf
+
     class(rslt) <- "summary.nlcm_doubletree_compact"
     return(rslt)
   }
@@ -295,6 +305,9 @@ summary.nlcm_doubletree <- function(object,
 
   grps$coeff_type <- coeff_type
   grps$ci_level   <- est$ci_level
+
+  grps$pi_inf <- pi_inf
+
   class(grps) <- "summary.nlcm_doubletree_long"
   # return if not already (in the 'compact' condition above):
   return(grps)
@@ -310,6 +323,7 @@ summary.nlcm_doubletree <- function(object,
 #' @param print_leaves If `TRUE`, for each discovered group the full list
 #' of leaves will be printed. Set this to `FALSE` if these leaf lists
 #' make output difficult to read.
+#' @param print_pi If `TRUE` print inference about pi; default to `FALSE`.
 #' @param digits Number of significant digits to print.
 #' @param ... Not used.
 #' @return see [print.nlcm_doubletree()]
@@ -318,6 +332,7 @@ summary.nlcm_doubletree <- function(object,
 #' @family nlcm_doubletree results
 print.summary.nlcm_doubletree_compact <- function(x,
                                                   print_leaves = TRUE,
+                                                  print_pi  = FALSE,
                                                   digits = max(3L, getOption("digits") - 3L),
                                                   ...) {
   if (!print_leaves) x$est_all$leaves <- NULL
@@ -330,11 +345,19 @@ print.summary.nlcm_doubletree_compact <- function(x,
                                                                             as.numeric)),
                                                           digits)
 
-  cat(paste0("Group-specific estimate(s), with credible interval level: ", x$ci_level))
+  cat(paste0("Group-specific estimate(s), with credible interval level: ", x$ci_level,"\n"))
   print(knitr::kable(x$est_all))
 
-  cat("\n")
+  if (print_pi){
+    cat(paste0("\nPopulation fractions of tree1 leaves, with credible interval level: ", x$ci_level,"\n"))
+    for (domain in 1:length(x$pi_inf)){
+      cat("\n>---------------- Tree2 Leaf ",domain, ": ", names(x$pi_inf)[domain] ,"-----------------<")
+      print(knitr::kable(x$pi_inf[[domain]],digits=digits))
+    }
 
+    cat("\n")
+
+  }
   # Return
   return(invisible(x))
 }
@@ -362,16 +385,13 @@ print.summary.nlcm_doubletree_long <- function(x,
                                                digits = max(3L, getOption("digits") - 3L),
                                                ...) {
 
-  cat("Group-specific lambda estimates for the", length(x), "groups discovered by `doubletree`\n")
+  cat("Group-specific lambda estimates for the groups discovered by `doubletree`\n")
   cat(paste0("Credible interval level: ", x$ci_level),"\n")
   if (x$coeff_type == "nlcm_doubletree") {
     cat("Showing lambda estimates for discovered groups; not ad hoc.\n\n")
   }
-  # remove some information that is not to be tabulated:
-  x$coeff_type <- NULL
-  x$ci_level  <- NULL
 
-  pL1 <- length(x)
+  pL1 <- length(x)-3
   for (v1 in 1:pL1){
     cat(">---------------- Tree1 Leaf", v1, "-----------------<\n\n")
     for (g in 1:length(x[[v1]])) {
@@ -395,6 +415,12 @@ print.summary.nlcm_doubletree_long <- function(x,
     }
   }
 
+
+  cat(paste0("\nPopulation fractions of tree1 leaves, with credible interval level: ", x$ci_level,"\n"))
+  for (domain in 1:length(x$pi_inf)){
+    cat("\n>---------------- Tree2 Leaf ",domain, ": ", names(x$pi_inf)[domain] ,"-----------------<")
+    print(knitr::kable(x$pi_inf[[domain]],digits=digits))
+  }
   cat("\nIf this is hard to read, try print(x, compact = TRUE)\n\n")
 
   # Return

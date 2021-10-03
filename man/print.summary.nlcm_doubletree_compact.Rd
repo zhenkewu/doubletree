@@ -4,7 +4,13 @@
 \alias{print.summary.nlcm_doubletree_compact}
 \title{Compact printing of \code{\link[=nlcm_doubletree]{nlcm_doubletree()}} model fits}
 \usage{
-\method{print}{summary.nlcm_doubletree_compact}(x, print_leaves = TRUE, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{summary.nlcm_doubletree_compact}(
+  x,
+  print_leaves = TRUE,
+  print_pi = FALSE,
+  digits = max(3L, getOption("digits") - 3L),
+  ...
+)
 }
 \arguments{
 \item{x}{output from \code{summary.nlcm_doubletree} with \code{compact = TRUE}.}
@@ -12,6 +18,8 @@
 \item{print_leaves}{If \code{TRUE}, for each discovered group the full list
 of leaves will be printed. Set this to \code{FALSE} if these leaf lists
 make output difficult to read.}
+
+\item{print_pi}{If \code{TRUE} print inference about pi; default to \code{FALSE}.}
 
 \item{digits}{Number of significant digits to print.}
 
