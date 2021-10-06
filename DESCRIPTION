@@ -24,7 +24,7 @@ Imports:
   grDevices(>= 3.4.1),
   BayesLCA(>= 1.9),
   poLCA(>= 1.4.1),
-  ggtree(>= 2.2.1),
+  ggtree(>= 2.0.1),
   igraph(>= 1.2.5),
   foreach (>= 1.5.0),
   ggplot2 (>= 3.2.1),
