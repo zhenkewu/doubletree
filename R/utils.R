@@ -526,7 +526,49 @@ signlogsumexp <- function(logabsv,sign){
 }
 
 
-## 2. CSMF accuracy
+#' get CSMF accuracy
+#'
+#' @param csmf
+#' @param truth
+#' @param undet `NULL` default.
+#'
+#' @return numeric; between 0 and 1; the higher the more accurate.
+#'
+#' @export
+getCSMFacc <- function (csmf, truth, undet = NULL)
+{
+  if (methods::is(csmf, "insilico")) {
+    if (!is.null(names(truth))) {
+      order <- match(colnames(csmf$csmf), names(truth))
+      if (is.na(sum(order))) {
+        stop("Names not matching")
+      }
+      truth <- truth[order]
+    }
+    acc <- 1 - apply(abs(truth - t(csmf$csmf)), 2, sum)/2/(1 -
+                                                             min(truth))
+  }
+  else {
+    if (!is.null(undet)) {
+      if (undet %in% names(csmf)) {
+        csmf <- csmf[-which(names(csmf) == undet)]
+      }
+      else {
+        warning("The undetermined category does not exist in input CSMF.")
+      }
+    }
+    if (!is.null(names(csmf)) & !is.null(names(truth))) {
+      order <- match(names(csmf), names(truth))
+      if (is.na(sum(order))) {
+        stop("Names not matching")
+      }
+      truth <- truth[order]
+    }
+    acc <- 1 - sum(abs(truth - csmf))/2/(1 - min(truth))
+  }
+  return(acc)
+}
+
 ## 3. RMSE
 ## 4. aRI for assessing cluster estimation accuracy
 

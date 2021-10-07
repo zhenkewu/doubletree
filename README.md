@@ -24,10 +24,7 @@ Installation
 --------------
 ```r
 # install bioconductor package `ggtree` for visualizing results:
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("ggtree")
+devtools::install_github("https://github.com/YuLab-SMU/ggtree")
 
 install.packages("devtools",repos="https://cloud.r-project.org")
 devtools::install_github("zhenkewu/doubletree")

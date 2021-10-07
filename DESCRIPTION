@@ -1,7 +1,7 @@
 Package: doubletree
 Type: Package
 Title: Nested Latent Class Models for Domain-Adaptive and Semisupervised Learning of Cause-of-Deaths using Verbal Autopsy
-Version: 0.5.0.004
+Version: 0.5.0.005
 Date: 2021-10-07
 Authors@R: c(
   person("Zhenke", "Wu", email="zhenkewu@umich.edu",role=c("cre","aut"),
