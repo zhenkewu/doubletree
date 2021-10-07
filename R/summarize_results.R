@@ -290,6 +290,10 @@ summary.nlcm_doubletree <- function(object,
                               n_obs    = est$n_obs[[v1]][[g]],
                               leaves   = est$leaves[[v1]][[g]])
 
+      if (!is.list(est$eta_sd_collapsed)){
+        est$eta_sd_collapsed <-
+          split_along_dim(array(est$eta_sd_collapsed,c(1,1,length(est$eta_sd_collapsed))),3)
+        }
       tmp_post_simu <- apply(cbind(expit(MASS::mvrnorm(B,
                                                        est$eta_est_collapsed[[v1]][,1,drop=FALSE],
                                                        diag((est$eta_sd_collapsed[[v1]][,1])^2,K-1,K-1))
