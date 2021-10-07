@@ -24,7 +24,7 @@
 compute_params_dt <- function(mod,dsgn,ci_level=0.95){
   ###########
   ## comment out when building the package:
-  # mod <- mod0$mod
+  # mod <- res$mod
   # dsgn <- dsgn0
   # ci_level <- 0.95
   # B    <- 10000
@@ -113,7 +113,7 @@ compute_params_dt <- function(mod,dsgn,ci_level=0.95){
   n_curr_grps_tree1 <- length(unique(prob_est$grp_tree1))
   prob_est$members_tree1 <- vector("list",n_curr_grps_tree1)
   for (g in 1:n_curr_grps_tree1){
-    prob_est$members_tree1[[g]] <-  names(dsgn$leaf_ids_units[[2]])[prob_est$grp_tree1==g]
+    prob_est$members_tree1[[g]] <-  names(dsgn$leaf_ids_units[[1]])[-(pL1+1)][prob_est$grp_tree1==g]
   }
 
   prob_est$theta_collapsed <- prob_est$theta[,,!duplicated(prob_est$grp_tree1),drop=FALSE]
@@ -198,7 +198,7 @@ summary.nlcm_doubletree <- function(object,
                                     ...){
 
   # # <----- temporary during package building.
-  # object = mod0
+  # object = res
   # coeff_type = "nlcm_doubletree"
   # compact = FALSE
   # # <---- temporary during package building.
