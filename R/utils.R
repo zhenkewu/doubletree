@@ -528,8 +528,8 @@ signlogsumexp <- function(logabsv,sign){
 
 #' get CSMF accuracy
 #'
-#' @param csmf
-#' @param truth
+#' @param csmf a vector that sums to one; positive values
+#' @param truth a vector that sums to one; positive values
 #' @param undet `NULL` default.
 #'
 #' @return numeric; between 0 and 1; the higher the more accurate.

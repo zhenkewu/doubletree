@@ -80,7 +80,7 @@ compute_params_dt <- function(mod,dsgn,ci_level=0.95){
   ## tree2: (primary interest)
   grp <- matrix(NA,nrow=pL1,ncol=pL2)
   for (v1 in 1:pL1){
-    grp[v1,] <- round(prob_est$eta_est[v1,,1],6) # currently ad hoc.
+    grp[v1,] <- round(prob_est$eta_est[v1,1,],6) # currently ad hoc.
   }
   prob_est$grp <- t(apply(grp,1,function(x) as.integer(factor(x,levels=unique(x)))))
   # this is likely better because it is not on probability scale, which

@@ -7,6 +7,10 @@
 getCSMFacc(csmf, truth, undet = NULL)
 }
 \arguments{
+\item{csmf}{a vector that sums to one; positive values}
+
+\item{truth}{a vector that sums to one; positive values}
+
 \item{undet}{\code{NULL} default.}
 }
 \value{
