@@ -422,14 +422,17 @@ myrdirich <- function(n,v){
 #' @export
 #'
 get_topk_COD <- function(probs,s){
-  which.k <- function(x, k){which(x == sort(x, decreasing = TRUE)[k])}
-  v <- ncol(probs)
-  res <- data.frame((1:v)[apply(probs, 1, which.k, 1)])
-  if (s>1){
-    for (s2 in 2:s){
-      res <- cbind(res,(1:v)[apply(probs, 1, which.k, s2)])
-    }
-  }
+  # which.k <- function(x, k){which(x == sort(x, decreasing = TRUE)[k])}
+  # v <- ncol(probs)
+  # res <- data.frame(cause1=apply(probs, 1, which.k, 1))
+  # if (s>1){
+  #   for (s2 in 2:s){
+  #     res <- cbind(res,apply(probs, 1, which.k, s2))
+  #   }
+  # }
+  # names(res) <- paste("cause",1:s,sep="")
+  # res
+  res <- data.frame(matrix(t(apply(probs,1,function(v) order(v,decreasing = TRUE)[1:s])),ncol=s))
   names(res) <- paste("cause",1:s,sep="")
   res
 }
@@ -452,11 +455,12 @@ get_topk_COD <- function(probs,s){
 #'
 #' @export
 acc_topk <- function(pred_topk,truth){
-  res = 0
-  for (k in 1:ncol(pred_topk)){
-    res <- res + sum(pred_topk[,k] == truth,na.rm=TRUE) / length(truth)
-  }
-  res
+  # res = 0
+  # for (k in 1:ncol(pred_topk)){
+  #   res <- res + sum(pred_topk[,k] == truth,na.rm=TRUE) / length(truth)
+  # }
+  # res
+  sum(sapply(1:length(truth),function(i) 0+truth[i]%in%pred_topk[i,]))/length(truth)
 }
 
 #' heatmap

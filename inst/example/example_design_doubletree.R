@@ -46,7 +46,7 @@ weighted_edges = c(FALSE,FALSE) # For illustrative purposes, the following ignor
                                 # the input edge lengths.
 dsgn  <- design_doubletree(Y,leaf_ids,mytrees,weighted_edges)
 
-table(dsgn$resA2$leaf_ids,useNA="ifany")
+table(dsgn$leaf_ids,useNA="ifany")
 
 resA2 <- dsgn$resA2
 resB <- dsgn$resB
