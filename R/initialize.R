@@ -469,17 +469,21 @@ initialize_nlcm_doubletree <- function(Y,A,
     }
     if (scenario!="a"){
       tmp_indicators[is.na(v_units[[1]])]  <-
-        sample(1:pL1,size=sum(is.na(v_units[[1]])),replace=TRUE,prob=obs_cts/sum(obs_cts))
+        sample(1:pL1,size=sum(is.na(v_units[[1]])),replace=TRUE)
+        # sample(1:pL1,size=sum(is.na(v_units[[1]])),replace=TRUE,prob=obs_cts/sum(obs_cts))
     }
     vi_params$emat <- unMAP(tmp_indicators) # this is for all observation; ignore the ones with observed CODs.
     if (scenario!="a"){
-      vi_params$emat[is.na(v_units[[1]]),] <- matrix(obs_cts/sum(obs_cts),nrow=sum(is.na(v_units[[1]])),ncol=pL1,byrow=TRUE) # non-zero entries.
+      vi_params$emat[is.na(v_units[[1]]),] <-
+        matrix(1/pL1,nrow=sum(is.na(v_units[[1]])),ncol=pL1,byrow=TRUE) # non-zero entries.
+        # matrix(obs_cts/sum(obs_cts),nrow=sum(is.na(v_units[[1]])),ncol=pL1,byrow=TRUE) # non-zero entries.
     }
   } # NB: need to selectively ignore the ones with observed COD.
 
   ## multinomial variational parameters: N by K - class for people in each source and target domain.
   if (is.null(vi_params[["rmat"]])){ # always missing in latent class analysis!
     vi_params$rmat <- matrix(smart_guess_rmat,nrow=n,ncol=K,byrow=TRUE) # non-zero entries.
+    #vi_params$rmat <- matrix(rep(1/K,K),nrow=n,ncol=K,byrow=TRUE) # non-zero entries.
     # vi_params$rmat <- cbind(rep(0.9,n),matrix(0.1/(K-1),nrow=n,ncol=K-1))
     #vi_params$rmat <- unMAP(sample(1:K,size=n,replace=TRUE))
   }

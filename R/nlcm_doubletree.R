@@ -106,7 +106,7 @@ nlcm_doubletree <- function(Y,leaf_ids,mytrees,# may have unordered nodes.
                             print_freq = 10,
                             quiet      = FALSE,
                             plot_fig   = FALSE,
-                            hyper_fixed = list(K=2,LD=TRUE),
+                            hyper_fixed = list(K=2,LD=TRUE,do_tree1_update=TRUE),
                             tol        = 1E-8,
                             tol_hyper = 1E-4,
                             max_iter = 5000,

@@ -15,7 +15,7 @@ nlcm_doubletree(
   print_freq = 10,
   quiet = FALSE,
   plot_fig = FALSE,
-  hyper_fixed = list(K = 2, LD = TRUE),
+  hyper_fixed = list(K = 2, LD = TRUE, do_tree1_update = TRUE),
   tol = 1e-08,
   tol_hyper = 1e-04,
   max_iter = 5000,

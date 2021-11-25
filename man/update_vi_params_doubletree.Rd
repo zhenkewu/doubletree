@@ -57,7 +57,8 @@ update_vi_params_doubletree(
   s1_u_zeroset,
   s1_u_oneset,
   s2_cu_zeroset,
-  s2_cu_oneset
+  s2_cu_oneset,
+  do_tree1_update
 )
 }
 \arguments{
@@ -72,7 +73,8 @@ of \code{\link[=initialize_nlcm_doubletree]{initialize_nlcm_doubletree()}}; we u
 
 \item{psi, g_psi, phi, g_phi, tau_1, tau_2}{parameters updated by \code{update_hyperparams_doubletree()}}
 
-\item{a1, b1, a2, b2, dmat, K, LD, s1_u_zeroset, s1_u_oneset, s2_cu_zeroset, s2_cu_oneset}{fixed hyperparameters}
+\item{do_tree1_update}{\code{TRUE} to update \code{mu_gamma},\code{sigma_gamma}, \code{prob1},\code{tau_1}
+fixed hyperparameters}
 }
 \description{
 Used by \code{\link[=fit_nlcm_doubletree]{fit_nlcm_doubletree()}}; followed by \code{\link[=update_hyperparams_doubletree]{update_hyperparams_doubletree()}}

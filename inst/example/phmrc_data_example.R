@@ -1,7 +1,3 @@
-
-
-
-
 rm(list=ls())
 library(igraph)
 

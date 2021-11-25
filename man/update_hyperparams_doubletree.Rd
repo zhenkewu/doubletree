@@ -52,7 +52,8 @@ update_hyperparams_doubletree(
   LD,
   tau_update_levels,
   update_hyper,
-  quiet
+  quiet,
+  do_tree1_update
 )
 }
 \arguments{
@@ -143,20 +144,6 @@ function \code{\link[=initialize_nlcm_doubletree]{initialize_nlcm_doubletree()}}
 
 \item{tau_2}{parameters updated by \code{update_hyperparams_doubletree()}}
 
-\item{a1}{fixed hyperparameters}
-
-\item{b1}{fixed hyperparameters}
-
-\item{a2}{fixed hyperparameters}
-
-\item{b2}{fixed hyperparameters}
-
-\item{dmat}{fixed hyperparameters}
-
-\item{K}{fixed hyperparameters}
-
-\item{LD}{fixed hyperparameters}
-
 \item{tau_update_levels}{a numeric vector, specifies which levels of hyperparameters to update}
 
 \item{update_hyper}{Logical, \code{TRUE} or \code{FALSE} to indicate
@@ -164,6 +151,8 @@ whether to update \code{tau_1} and \code{tau_2}. This is computed at every itera
 in \code{\link[=fit_nlcm_doubletree]{fit_nlcm_doubletree()}}}
 
 \item{quiet}{default to \code{FALSE}, which prints intermediate updates of hyperparameters}
+
+\item{do_tree1_update}{\code{TRUE} to update \code{mu_gamma},\code{sigma_gamma}, \code{prob1},\code{tau_1}}
 }
 \value{
 a list of updated hyperparameters: tau_1,tau_2,psi,g_psi,phi,g_phi,
