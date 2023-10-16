@@ -10,7 +10,7 @@ adaptation, please cite the following preprint:
 
 |       | Citation     | Paper Link
 | -------------  | -------------  | -------------  |
-|  1.   | Wu Z, Li RZ, Chen I, Li M (2021+). Tree-informed Bayesian multi-source domain adaptation: cross-population probabilistic cause-of-death assignment using verbal autopsy.   |[Arxiv](https://arxiv.org/abs/2112.10978)| 
+|  1.   | Wu Z, Li RZ, Chen I, Li M (2023+). Tree-informed Bayesian multi-source domain adaptation: cross-population probabilistic cause-of-death assignment using verbal autopsy.   |[Arxiv](https://arxiv.org/abs/2112.10978)| 
 
 
 ## Table of content
